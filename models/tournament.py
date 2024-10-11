@@ -20,3 +20,9 @@ class Tournament:
         self.current_round = current_round
         self.rounds = rounds
         self.number_of_rounds = number_of_rounds
+
+    def shuffle_players(self):
+        pass
+
+    def sort_players_by_score(self):
+        pass

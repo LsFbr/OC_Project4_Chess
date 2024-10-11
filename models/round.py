@@ -12,4 +12,8 @@ class Round:
         self.matches = []
 
     def pair_players(self, player_1, player_2):
-        pass
+        match = (
+            player_1,
+            player_2
+        )
+        self.matches.append(match)

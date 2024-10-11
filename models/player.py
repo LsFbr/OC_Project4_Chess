@@ -12,3 +12,9 @@ class Player:
         self.rank = rank
 
         self.score = 0
+
+    def __str__(self):
+        return [f"{self.name}, {self.surname}", f"{self.score}"]
+
+    def __repr__(self):
+        return self.__str__()
