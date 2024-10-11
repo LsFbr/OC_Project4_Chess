@@ -1,19 +1,28 @@
+from datetime import datetime
+
+
 class Round:
     def __init__(
             self,
             round_name: str,
-            start_date: str,
-            end_date: str,
+
     ):
         self.round_name = round_name
-        self.start_date = start_date
-        self.end_date = end_date
 
+        self.start_date = None
+        self.end_date = None
         self.matches = []
 
-    def pair_players(self, player_1, player_2):
-        match = (
-            player_1,
-            player_2
-        )
-        self.matches.append(match)
+    def serialize(self):
+        return {
+            "round_name": self.round_name,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "matches": self.matches
+        }
+
+    def start_round(self):
+        self.start_date = datetime.now()
+
+    def end_round(self):
+        self.end_date = datetime.now()

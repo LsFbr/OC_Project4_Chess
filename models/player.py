@@ -4,17 +4,20 @@ class Player:
             name: str,
             surname: str,
             birthday: str,
-            rank: str
+            national_chess_id: str,
     ):
         self.name = name
         self.surname = surname
         self.birthday = birthday
-        self.rank = rank
+        self.national_chess_id = national_chess_id
 
-        self.score = 0
+        self.score = 0.0
 
-    def __str__(self):
-        return [f"{self.name}, {self.surname}", f"{self.score}"]
-
-    def __repr__(self):
-        return self.__str__()
+    def serialize(self):
+        return {
+            "name": self.name,
+            "surname": self.surname,
+            "birthday": self.birthday,
+            "national_chess_id": self.national_chess_id,
+            "score": self.score
+        }
