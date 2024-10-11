@@ -1,6 +1,3 @@
-from models.round import Round
-
-
 class Tournament:
     def __init__(
             self,
@@ -10,6 +7,7 @@ class Tournament:
             end_date: str,
             players: list,
             description: str,
+            current_round: int,
             rounds: list,
             number_of_rounds=4
     ):
@@ -19,11 +17,6 @@ class Tournament:
         self.end_date = end_date
         self.players = players
         self.description = description
+        self.current_round = current_round
         self.rounds = rounds
         self.number_of_rounds = number_of_rounds
-
-    def create_rounds(self):
-        for i in range(self.number_of_rounds):
-            round = Round(f"Round{i+1}", self.players)
-            round.create_matchs()
-            self.rounds.append(round)
