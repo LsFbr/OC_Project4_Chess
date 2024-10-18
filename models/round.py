@@ -26,3 +26,6 @@ class Round:
 
     def end_round(self):
         self.end_date = datetime.now()
+
+    def __repr__(self):
+        return f"{self.round_name} : {self.matches}"

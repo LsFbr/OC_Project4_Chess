@@ -21,3 +21,11 @@ class Player:
             "national_chess_id": self.national_chess_id,
             "score": self.score
         }
+
+    def __repr__(self):
+        return (
+            f"{self.name} {self.surname}\n"
+            f"Birthday : {self.birthday}\n"
+            f"Chess ID : {self.national_chess_id}"
+            f"Score in tournament : {self.score}"
+        )

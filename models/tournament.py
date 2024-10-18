@@ -7,10 +7,10 @@ import random
 class Tournament:
     def __init__(
             self,
-            name: str,
-            location: str,
-            description: str,
-            players: list,
+            name,
+            location,
+            description,
+            players,
             number_of_rounds=4
     ):
         self.name = name
@@ -56,3 +56,6 @@ class Tournament:
 
         self.rounds.append(round)
         return round
+
+    def __repr__(self):
+        return f"{self.name}"

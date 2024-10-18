@@ -22,3 +22,6 @@ class Match:
             self.player_1.score += 0.5
             self.player_2.score += 0.5
             self.winner = "Draw"
+
+    def __repr__(self):
+        return f"{self.player_1} vs {self.player_2} : {self.winner}"
