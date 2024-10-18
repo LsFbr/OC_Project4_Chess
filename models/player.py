@@ -1,3 +1,8 @@
+from tinydb import TinyDB, Query
+
+database = TinyDB("data/database.json")
+
+
 class Player:
     def __init__(
             self,
@@ -19,7 +24,7 @@ class Player:
             "surname": self.surname,
             "birthday": self.birthday,
             "national_chess_id": self.national_chess_id,
-            "score": self.score
+            "score": self.score,
         }
 
     def __repr__(self):
@@ -29,3 +34,7 @@ class Player:
             f"Chess ID : {self.national_chess_id}"
             f"Score in tournament : {self.score}"
         )
+
+    def save_player(self):
+        players_table = database.table("players")
+        players_table.upsert(self.serialize(), Query().national_chess_id == self.national_chess_id)

@@ -2,6 +2,9 @@ from .round import Round
 from .match import Match
 
 import random
+from tinydb import TinyDB, Query
+
+database = TinyDB("data/database.json")
 
 
 class Tournament:
@@ -19,6 +22,8 @@ class Tournament:
         self.players = players
         self.number_of_rounds = number_of_rounds
 
+        self.start_date = None
+        self.end_date = None
         self.current_round_number = 0
         self.rounds = []
         self.previous_matches = []
@@ -59,3 +64,7 @@ class Tournament:
 
     def __repr__(self):
         return f"{self.name}"
+
+    def save_tournament(self):
+        tournaments_table = database.table("tournaments")
+        tournaments_table.upsert(self.serialize(), Query().name == self.name)
