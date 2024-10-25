@@ -36,6 +36,8 @@ class Controller:
             player = Player(name, surname, birthday, national_chess_id)
             self.players.append(player)
             player.save_player()
+            if self.tournament:
+                self.tournament.save_tournament()
             if not self.view.prompt_for_add_another_player():
 
                 return
@@ -53,3 +55,4 @@ class Controller:
 
     def start_tournament(self):
         self.tournament.create_round()
+        self.tournament.save_tournament()

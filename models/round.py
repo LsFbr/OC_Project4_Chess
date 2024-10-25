@@ -16,9 +16,9 @@ class Round:
     def serialize(self):
         return {
             "round_name": self.round_name,
-            "start_date": self.start_date,
-            "end_date": self.end_date,
-            "matches": self.matches
+            "start_date": str(self.start_date) if self.start_date else None,
+            "end_date": str(self.end_date) if self.end_date else None,
+            "matches": [match.serialize() for match in self.matches]
         }
 
     def start_round(self):

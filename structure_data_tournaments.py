@@ -10,8 +10,8 @@
             "surname": "surname",
             "birthday": "birthday",
             },
-        
     },
+
     "tournaments": {
         "id": {
             "name": "name",
@@ -21,10 +21,18 @@
             "end_date": "end_date",
             "number_of_rounds": "number_of_rounds",
             "current_round_number": "current_round_number",
-            "players": [
-                "national_chess_id",
-                "national_chess_id",
-            ],
+            "players": {
+                "national_chess_id" : {
+                    "name": "name",
+                    "surname": "surname",
+                    "birthday": "birthday",
+                    },
+                "national_chess_id" : {
+                    "name": "name",
+                    "surname": "surname",
+                    "birthday": "birthday",
+                    },
+            },
             "rounds": {
                 "name": {
                     "matches": [
@@ -60,10 +68,18 @@
             "end_date": "end_date",
             "number_of_rounds": "number_of_rounds",
             "current_round_number": "current_round_number",
-            "players": [
-                "national_chess_id",
-                "national_chess_id",
-            ],
+            "players": {
+                "national_chess_id" : {
+                    "name": "name",
+                    "surname": "surname",
+                    "birthday": "birthday",
+                    },
+                "national_chess_id" : {
+                    "name": "name",
+                    "surname": "surname",
+                    "birthday": "birthday",
+                    },
+            },
             "rounds": {
                 "name": {
                     "matches": [

@@ -7,8 +7,8 @@ class Match:
 
     def serialize(self):
         return (
-            [self.player_1, self.player_1.score],
-            [self.player_2, self.player_2.score]
+            [self.player_1.serialize(), self.player_1.score],
+            [self.player_2.serialize(), self.player_2.score]
         )
 
     def set_result(self, result):
