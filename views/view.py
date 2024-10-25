@@ -32,5 +32,10 @@ class View:
 
         return name, location, description, number_of_rounds
 
+    def show_round_matches(self, round):
+        print(f"{round}")
+        for match in round.matches:
+            print(f"{match}")
+
     def print(self, data):
         print(data)

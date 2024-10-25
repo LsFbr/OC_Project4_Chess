@@ -37,7 +37,9 @@ class Tournament:
             "number_of_rounds": self.number_of_rounds,
             "current_round_number": self.current_round_number,
             "rounds": [round.serialize() for round in self.rounds],
-            "previous_matches": [match.serialize() for match in self.previous_matches]
+            "previous_matches": [
+                match.serialize() for match in self.previous_matches
+            ]
         }
 
     def create_round(self):

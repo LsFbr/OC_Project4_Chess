@@ -37,4 +37,7 @@ class Player:
 
     def save_player(self):
         players_table = database.table("players")
-        players_table.upsert(self.serialize(), Query().national_chess_id == self.national_chess_id)
+        players_table.upsert(
+            self.serialize(),
+            Query().national_chess_id == self.national_chess_id
+        )

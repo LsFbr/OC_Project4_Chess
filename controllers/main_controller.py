@@ -31,8 +31,14 @@ class Controller:
             (name, surname, birthday, national_chess_id) = (
                 self.view.prompt_for_add_player()
             )
-            if not name or not surname or not birthday or not national_chess_id:
+            if (
+                not name
+                or not surname
+                or not birthday
+                or not national_chess_id
+            ):
                 return
+
             player = Player(name, surname, birthday, national_chess_id)
             self.players.append(player)
             player.save_player()
@@ -47,9 +53,15 @@ class Controller:
             self.view.prompt_for_tournament()
         )
 
-        self.tournament = Tournament(
-            name, location, description, self.players, number_of_rounds
-        )
+        if not number_of_rounds:
+            self.tournament = Tournament(
+                name, location, description, self.players
+                )
+        else:
+            number_of_rounds = int(number_of_rounds)
+            self.tournament = Tournament(
+                name, location, description, self.players, number_of_rounds
+                )
 
         self.tournament.save_tournament()
 
