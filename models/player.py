@@ -1,6 +1,6 @@
 from tinydb import TinyDB, Query
 
-database = TinyDB("data/database.json")
+db = TinyDB("data/db.json")
 
 
 class Player:
@@ -35,8 +35,8 @@ class Player:
             f"Score in tournament : {self.score}"
         )
 
-    def save_player(self):
-        players_table = database.table("players")
+    def db_save_player(self):
+        players_table = db.table("players")
         players_table.upsert(
             self.serialize(),
             Query().national_chess_id == self.national_chess_id

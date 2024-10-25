@@ -1,16 +1,33 @@
 class View:
     def welcome(self):
-        print("Welcome to the chess tournament manager!")
+        print("\n<<<Welcome to the chess tournament manager>>>")
 
     def main_menu(self):
-        print("[1]. Create a tournament")
-        print("[2]. Add players")
-        print("[3]. Start tournament")
-        print("[0]. Exit")
+        print("\n<<<Main Menu>>>")
+        print("Enter 1 for Players Menu")
+        print("Enter 2 for Tournaments Menu")
+        print("Enter 0 to quit")
+        return input("Enter your choice : ")
+
+    def players_menu(self):
+        print("\n<<<Players Menu>>>")
+        print("Enter 1 to show all players")
+        print("Enter 2 to add a player")
+        print("Enter 3 to edit a player")
+        print("Enter 0 to return to the main menu")
+        return input("Enter your choice : ")
+
+    def tournaments_menu(self):
+        print("\n<<<Tournaments Menu>>>")
+        print("Enter 1 to show all tournaments")
+        print("Enter 2 to create a tournament")
+        print("Enter 3 to edit a tournament")
+        print("Enter 4 to start a tournament")
+        print("Enter 0 to return to the main menu")
         return input("Enter your choice : ")
 
     def prompt_for_add_player(self):
-        print("Enter the player's informations")
+        print("\nEnter the player's informations")
         name = input("Name: ")
         surname = input("Surname: ")
         birthday = input("Birthday: ")
@@ -18,7 +35,7 @@ class View:
         return name, surname, birthday, national_chess_id
 
     def prompt_for_add_another_player(self):
-        print("Do you want to add another player?")
+        print("\nDo you want to add another player?")
         result = input("Enter 'y' to add another player or 'n' to continue: ")
         if result == 'y':
             return True
@@ -38,4 +55,4 @@ class View:
             print(f"{match}")
 
     def print(self, data):
-        print(data)
+        print(f"\n{data}")

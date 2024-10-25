@@ -4,7 +4,7 @@ from .match import Match
 import random
 from tinydb import TinyDB, Query
 
-database = TinyDB("data/database.json")
+db = TinyDB("data/db.json")
 
 
 class Tournament:
@@ -68,5 +68,5 @@ class Tournament:
         return f"{self.name}"
 
     def save_tournament(self):
-        tournaments_table = database.table("tournaments")
+        tournaments_table = db.table("tournaments")
         tournaments_table.upsert(self.serialize(), Query().name == self.name)
