@@ -1,3 +1,6 @@
+from prettytable import PrettyTable
+
+
 class View:
     def welcome(self):
         print("\n<<<Welcome to the chess tournament manager>>>")
@@ -48,6 +51,23 @@ class View:
         number_of_rounds = input("Enter the number of rounds: ")
 
         return name, location, description, number_of_rounds
+
+    def show_all_players(self, players):
+        table = PrettyTable()
+        table.title = "<<<REGISTERED PLAYERS>>>"
+        table.field_names = [
+            "National Chess ID", "Name", "Surname", "Birthday"
+        ]
+
+        for player in players:
+            table.add_row([
+                player["national_chess_id"],
+                player["name"],
+                player["surname"],
+                player["birthday"]
+            ])
+
+        print(table)
 
     def show_round_matches(self, round):
         print(f"{round}")
