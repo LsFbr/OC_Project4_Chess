@@ -52,6 +52,13 @@ class View:
 
         return name, location, description, number_of_rounds
 
+    def show_player(self, player):
+        print("\n<<<PLAYER INFORMATION>>>")
+        print(f"Name: {player['name']}")
+        print(f"Surname: {player['surname']}")
+        print(f"Birthday: {player['birthday']}")
+        print(f"National Chess ID: {player['national_chess_id']}")
+
     def show_all_players(self, players):
         table = PrettyTable()
         table.title = "<<<REGISTERED PLAYERS>>>"
@@ -68,6 +75,22 @@ class View:
             ])
 
         print(table)
+
+    def prompt_for_edit_player(self, player):
+        print(
+            "\nEnter new player's informations"
+            " or press enter to keep the current one")
+        name = input("Name: ")
+        surname = input("Surname: ")
+        birthday = input("Birthday: ")
+        national_chess_id = input("National chess ID: ")
+        return name, surname, birthday, national_chess_id
+
+    def prompt_for_chess_id(self):
+        national_chess_id = input(
+            "Your choice :"
+        )
+        return national_chess_id
 
     def show_round_matches(self, round):
         print(f"{round}")
