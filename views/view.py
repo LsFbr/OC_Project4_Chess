@@ -29,6 +29,13 @@ class View:
         print("Enter 0 to return to the main menu")
         return input("Enter your choice : ")
 
+    def prompt_for_add_tournament_players(self):
+        print("\n<<<Add players to the tournament>>>")
+        national_chess_ids = input(
+            "Enter the players National Chess ID, comma separated: "
+        )
+        return national_chess_ids
+
     def prompt_for_add_player(self):
         print("\nEnter the player's informations")
         name = input("Name: ")
@@ -45,6 +52,7 @@ class View:
         return False
 
     def prompt_for_tournament(self):
+        print("\n<<<Tournament creation>>>")
         name = input("Enter the tournament's name: ")
         location = input("Enter the tournament's location: ")
         description = input("Enter the tournament's description: ")
@@ -53,7 +61,7 @@ class View:
         return name, location, description, number_of_rounds
 
     def show_player(self, player):
-        print("\n<<<PLAYER INFORMATION>>>")
+        print("\n<<<Player Informations>>>")
         print(f"Name: {player['name']}")
         print(f"Surname: {player['surname']}")
         print(f"Birthday: {player['birthday']}")
@@ -61,7 +69,7 @@ class View:
 
     def show_all_players(self, players):
         table = PrettyTable()
-        table.title = "<<<REGISTERED PLAYERS>>>"
+        table.title = "<<<Registered Players>>>"
         table.field_names = [
             "National Chess ID", "Name", "Surname", "Birthday"
         ]
