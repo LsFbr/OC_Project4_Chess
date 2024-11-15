@@ -52,6 +52,13 @@ class View:
         )
         return national_chess_ids
 
+    def prompt_for_remove_tournament_players(self):
+        print("\n<<<Delete players from the tournament>>>")
+        national_chess_ids = input(
+            "Enter the players National Chess ID, comma separated: "
+        )
+        return national_chess_ids
+
     def show_tournament(self, tournament):
         print("\n<<<Tournament Informations>>>")
         print(f"Name: {tournament['name']}")

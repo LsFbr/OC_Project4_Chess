@@ -292,6 +292,41 @@ class Controller:
 
         self.view.print("\nTournament successfully updated.\n")
 
+    def remove_tournament_players(self, tournament, tournament_id):
+        self.view.show_all_tournament_players(tournament["players"])
+
+        national_chess_ids = self.view.prompt_for_remove_tournament_players()
+        national_chess_ids_list = [
+            chess_id.strip() for chess_id in national_chess_ids.split(",")
+        ]
+
+        selected_players = []
+        for chess_id in national_chess_ids_list:
+            player = next(
+                (
+                    player for player in tournament["players"]
+                    if player["national_chess_id"] == chess_id
+                ),
+                None
+            )
+            if player:
+                selected_players.append(player)
+            else:
+                self.view.print(
+                    f"\nPlayer with National Chess ID {chess_id} "
+                    "is not in the tournament.\n"
+                )
+
+        for player in selected_players:
+            tournament["players"].remove(player)
+
+        tournaments_table = db.table("tournaments")
+        tournaments_table.update(
+            tournament, doc_ids=[tournament_id]
+        )
+
+        self.view.print("\nTournament successfully updated.\n")
+
     def edit_tournament(self):
         tournaments_table = db.table("tournaments")
         tournaments = tournaments_table.all()
