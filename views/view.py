@@ -36,6 +36,28 @@ class View:
         )
         return national_chess_ids
 
+    def show_all_tournaments(self, tournaments):
+        table = PrettyTable()
+        table.title = "<<<Tournaments List>>>"
+        table.field_names = [
+            "ID", "Name", "Location", "Description", "Current Round", "Players"
+        ]
+
+        for tournament in tournaments:
+            table.add_row([
+                tournament.doc_id,
+                tournament["name"],
+                tournament["location"],
+                tournament["description"],
+                (
+                    f"{tournament['current_round_number']}/"
+                    f"{tournament['number_of_rounds']}"
+                ),
+                len(tournament["players"])
+            ])
+
+        print(table)
+
     def prompt_for_add_player(self):
         print("\nEnter the player's informations")
         name = input("Name: ")

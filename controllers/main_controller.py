@@ -61,6 +61,10 @@ class Controller:
         players_table = db.table("players")
         players = players_table.all()
 
+        if not players:
+            self.view.print("No players available.")
+            return
+
         self.view.show_all_players(players)
 
     def db_add_players(self):
@@ -86,20 +90,14 @@ class Controller:
 
     def db_edit_player(self):
 
-        players_table = db.table("players")
-        players = players_table.all()
-
-        if not players:
-            self.view.print("No players available to edit.")
-            return
-
-        self.view.show_all_players(players)
+        self.db_show_all_players()
 
         self.view.print(
             "Enter the national chess ID of the player you want to edit :"
         )
         national_chess_id = self.view.prompt_for_chess_id()
 
+        players_table = db.table("players")
         player = players_table.get(
             Query().national_chess_id == national_chess_id
         )
@@ -151,6 +149,16 @@ class Controller:
 
         for player in sorted_players:
             players_table.insert(player)
+
+    def db_show_all_tournaments(self):
+        tournaments_table = db.table("tournaments")
+        tournaments = tournaments_table.all()
+
+        if not tournaments:
+            self.view.print("No tournaments available.")
+            return
+
+        self.view.show_all_tournaments(tournaments)
 
     def create_tournament(self):
 
