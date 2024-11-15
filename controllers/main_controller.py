@@ -55,6 +55,28 @@ class Controller:
             elif choice == "0":
                 return
 
+    def tournament_edit_menu(self, tournament, tournament_id):
+        while True:
+            choice = self.view.tournament_edit_menu()
+            if choice == "1":
+                self.edit_tournament_infos(tournament, tournament_id)
+            if choice == "2":
+                self.tournament_players_menu(tournament, tournament_id)
+            elif choice == "0":
+                return
+
+    def tournament_players_menu(self, tournament, tournament_id):
+        while True:
+            choice = self.view.tournament_players_menu()
+            if choice == "1":
+                self.view.show_all_tournament_players(tournament["players"])
+            elif choice == "2":
+                self.db_add_tournament_players()
+            elif choice == "3":
+                self.db_remove_tournament_players()
+            elif choice == "0":
+                return
+
     def db_show_all_players(self):
         self.db_sort_players_alphabetically()
 
@@ -108,7 +130,7 @@ class Controller:
 
         self.view.show_player(player)
         new_name, new_surname, new_birthday, new_national_chess_id = (
-            self.view.prompt_for_edit_player(player)
+            self.view.prompt_for_edit_player()
         )
 
         player["name"] = new_name if new_name else player["name"]
@@ -217,6 +239,56 @@ class Controller:
         tournaments_table.insert(self.tournament.serialize())
 
         self.view.print("\nTournament saved.\n")
+
+    def edit_tournament(self):
+        tournaments_table = db.table("tournaments")
+        tournaments = tournaments_table.all()
+
+        if not tournaments:
+            self.view.print("No tournaments available.")
+            return
+
+        self.view.show_all_tournaments(tournaments)
+
+        self.view.print(
+            "Enter the ID of the tournament you want to edit :"
+        )
+
+        tournament_id = int(self.view.prompt_for_tournament_id())
+
+        tournament = tournaments_table.get(doc_id=tournament_id)
+
+        if not tournament:
+            self.view.print("\nTournament not found.\n")
+            return
+
+        self.tournament_edit_menu(tournament, tournament_id)
+
+    def edit_tournament_infos(self, tournament, tournament_id):
+        self.view.show_tournament(tournament)
+
+        new_name, new_location, new_description, new_number_of_rounds = (
+            self.view.prompt_for_edit_tournament_infos()
+        )
+
+        tournament["name"] = new_name if new_name else tournament["name"]
+        tournament["location"] = (
+            new_location if new_location else tournament["location"]
+        )
+        tournament["description"] = (
+            new_description if new_description else tournament["description"]
+        )
+        tournament["number_of_rounds"] = (
+            new_number_of_rounds if new_number_of_rounds
+            else tournament["number_of_rounds"]
+        )
+
+        tournaments_table = db.table("tournaments")
+        tournaments_table.update(
+            tournament, doc_ids=[tournament_id]
+        )
+
+        self.view.print("\nTournament successfully updated.\n")
 
     def start_tournament(self):
         self.tournament.create_round()

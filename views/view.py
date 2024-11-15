@@ -29,12 +29,35 @@ class View:
         print("Enter 0 to return to the main menu")
         return input("Enter your choice : ")
 
+    def tournament_edit_menu(self):
+        print("\n<<<Tournament Edit Menu>>>")
+        print("Enter 1 to edit tournament informations")
+        print("Enter 2 to edit tournament players")
+        print("Enter 0 to return to the tournament menu")
+        return input("Enter your choice : ")
+
+    def tournament_players_menu(self):
+        print("\n <<<Tournament Players Menu>>>")
+        print("Enter 1 to show all players in the tournament")
+        print("Enter 2 to add players to the tournament")
+        print("Enter 3 to remove players from the tournament")
+        print("Enter 0 to return to the tournament edit menu")
+        return input("Enter your choice : ")
+
     def prompt_for_add_tournament_players(self):
         print("\n<<<Add players to the tournament>>>")
         national_chess_ids = input(
             "Enter the players National Chess ID, comma separated: "
         )
         return national_chess_ids
+
+    def show_tournament(self, tournament):
+        print("\n<<<Tournament Informations>>>")
+        print(f"Name: {tournament['name']}")
+        print(f"Location: {tournament['location']}")
+        print(f"Description: {tournament['description']}")
+        print(f"Number of rounds: {tournament['number_of_rounds']}")
+        print(f"Current round: {tournament['current_round_number']}")
 
     def show_all_tournaments(self, tournaments):
         table = PrettyTable()
@@ -57,6 +80,17 @@ class View:
             ])
 
         print(table)
+
+    def prompt_for_edit_tournament_infos(self):
+        print(
+            "\nEnter new tournament's informations"
+            " or press enter to keep the current one"
+        )
+        name = input("Name: ")
+        location = input("Location: ")
+        description = input("Description: ")
+        number_of_rounds = input("Number of rounds: ")
+        return name, location, description, number_of_rounds
 
     def prompt_for_add_player(self):
         print("\nEnter the player's informations")
@@ -89,6 +123,23 @@ class View:
         print(f"Birthday: {player['birthday']}")
         print(f"National Chess ID: {player['national_chess_id']}")
 
+    def show_all_tournament_players(self, players):
+        table = PrettyTable()
+        table.title = "<<<Tournament's Players>>>"
+        table.field_names = [
+            "National Chess ID", "Name", "Surname", "Birthday"
+        ]
+
+        for player in players:
+            table.add_row([
+                player["national_chess_id"],
+                player["name"],
+                player["surname"],
+                player["birthday"]
+            ])
+
+        print(table)
+
     def show_all_players(self, players):
         table = PrettyTable()
         table.title = "<<<Registered Players>>>"
@@ -106,7 +157,7 @@ class View:
 
         print(table)
 
-    def prompt_for_edit_player(self, player):
+    def prompt_for_edit_player(self):
         print(
             "\nEnter new player's informations"
             " or press enter to keep the current one")
@@ -115,6 +166,12 @@ class View:
         birthday = input("Birthday: ")
         national_chess_id = input("National chess ID: ")
         return name, surname, birthday, national_chess_id
+
+    def prompt_for_tournament_id(self):
+        tournament_id = input(
+            "Your choice :"
+        )
+        return tournament_id
 
     def prompt_for_chess_id(self):
         national_chess_id = input(
