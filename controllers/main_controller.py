@@ -59,8 +59,10 @@ class Controller:
         while True:
             choice = self.view.tournament_edit_menu()
             if choice == "1":
-                self.edit_tournament_infos(tournament, tournament_id)
+                self.view.show_tournament(tournament)
             if choice == "2":
+                self.edit_tournament_infos(tournament, tournament_id)
+            if choice == "3":
                 self.tournament_players_menu(tournament, tournament_id)
             elif choice == "0":
                 return
@@ -71,9 +73,9 @@ class Controller:
             if choice == "1":
                 self.view.show_all_tournament_players(tournament["players"])
             elif choice == "2":
-                self.db_add_tournament_players()
+                self.add_tournament_players(tournament, tournament_id)
             elif choice == "3":
-                self.db_remove_tournament_players()
+                self.remove_tournament_players(tournament, tournament_id)
             elif choice == "0":
                 return
 
@@ -202,10 +204,6 @@ class Controller:
         players_table = db.table("players")
         players = players_table.all()
 
-        if not players:
-            self.view.print("No players available to add to the tournament.")
-            return
-
         self.view.show_all_players(players)
 
         national_chess_ids = self.view.prompt_for_add_tournament_players()
@@ -239,6 +237,60 @@ class Controller:
         tournaments_table.insert(self.tournament.serialize())
 
         self.view.print("\nTournament saved.\n")
+
+    def add_tournament_players(self, tournament, tournament_id):
+        self.view.show_all_tournament_players(tournament["players"])
+
+        players_table = db.table("players")
+        players = players_table.all()
+
+        self.view.show_all_players(players)
+
+        national_chess_ids = self.view.prompt_for_add_tournament_players()
+        national_chess_ids_list = [
+            chess_id.strip() for chess_id in national_chess_ids.split(",")
+        ]
+
+        existing_ids = {
+            player["national_chess_id"] for player in tournament["players"]
+        }
+
+        # Create a list of Player objects from the selected players
+        selected_players = []
+        for chess_id in national_chess_ids_list:
+            if chess_id in existing_ids:
+                self.view.print(
+                    f"\nPlayer with National Chess ID {chess_id} "
+                    "is already in the tournament.\n"
+                )
+                continue
+
+            player_data = players_table.get(
+                Query().national_chess_id == chess_id
+            )
+            if player_data:
+                player = {
+                    "name": player_data["name"],
+                    "surname": player_data["surname"],
+                    "birthday": player_data["birthday"],
+                    "national_chess_id": player_data["national_chess_id"]
+                    }
+
+                if player not in tournament["players"]:
+                    selected_players.append(player)
+            else:
+                self.view.print(
+                    f"\nPlayer with National Chess ID {chess_id} not found.\n"
+                )
+
+        tournament["players"].extend(selected_players)
+
+        tournaments_table = db.table("tournaments")
+        tournaments_table.update(
+            tournament, doc_ids=[tournament_id]
+        )
+
+        self.view.print("\nTournament successfully updated.\n")
 
     def edit_tournament(self):
         tournaments_table = db.table("tournaments")

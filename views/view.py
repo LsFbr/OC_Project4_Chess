@@ -31,8 +31,9 @@ class View:
 
     def tournament_edit_menu(self):
         print("\n<<<Tournament Edit Menu>>>")
-        print("Enter 1 to edit tournament informations")
-        print("Enter 2 to edit tournament players")
+        print("Enter 1 to show tournament informations")
+        print("Enter 2 to edit tournament informations")
+        print("Enter 3 to edit tournament players")
         print("Enter 0 to return to the tournament menu")
         return input("Enter your choice : ")
 
@@ -56,10 +57,17 @@ class View:
         print(f"Name: {tournament['name']}")
         print(f"Location: {tournament['location']}")
         print(f"Description: {tournament['description']}")
-        print(f"Number of rounds: {tournament['number_of_rounds']}")
-        print(f"Current round: {tournament['current_round_number']}")
+        print(
+            f"Current round: "
+            f"{tournament['current_round_number']}/"
+            f"{tournament['number_of_rounds']}"
+        )
 
     def show_all_tournaments(self, tournaments):
+        if not tournaments:
+            print("\nNo tournaments available.")
+            return
+
         table = PrettyTable()
         table.title = "<<<Tournaments List>>>"
         table.field_names = [
@@ -124,6 +132,10 @@ class View:
         print(f"National Chess ID: {player['national_chess_id']}")
 
     def show_all_tournament_players(self, players):
+        if not players:
+            print("\nNo players in the tournament.")
+            return
+
         table = PrettyTable()
         table.title = "<<<Tournament's Players>>>"
         table.field_names = [
@@ -141,6 +153,10 @@ class View:
         print(table)
 
     def show_all_players(self, players):
+        if not players:
+            print("\nNo players available.")
+            return
+
         table = PrettyTable()
         table.title = "<<<Registered Players>>>"
         table.field_names = [
