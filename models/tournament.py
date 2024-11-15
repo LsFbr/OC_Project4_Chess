@@ -33,7 +33,15 @@ class Tournament:
             "name": self.name,
             "location": self.location,
             "description": self.description,
-            "players": [player.serialize() for player in self.players],
+            "players": [
+                {
+                    "name": player.name,
+                    "surname": player.surname,
+                    "birthday": player.birthday,
+                    "national_chess_id": player.national_chess_id,
+                    "score": 0.0
+                } for player in self.players
+            ],
             "number_of_rounds": self.number_of_rounds,
             "current_round_number": self.current_round_number,
             "rounds": [round.serialize() for round in self.rounds],
