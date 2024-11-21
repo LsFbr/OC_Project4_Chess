@@ -39,7 +39,7 @@ class Tournament:
                     "surname": player.surname,
                     "birthday": player.birthday,
                     "national_chess_id": player.national_chess_id,
-                    "score": 0.0
+                    "score": player.score
                 } for player in self.players
             ],
             "number_of_rounds": self.number_of_rounds,

@@ -10,13 +10,12 @@ class Player:
             surname: str,
             birthday: str,
             national_chess_id: str,
-            score=None
+            score=0.0
     ):
         self.name = name
         self.surname = surname
         self.birthday = birthday
         self.national_chess_id = national_chess_id
-
         self.score = score
 
     def serialize(self):
@@ -25,7 +24,6 @@ class Player:
             "surname": self.surname,
             "birthday": self.birthday,
             "national_chess_id": self.national_chess_id,
-            # "score": self.score,
         }
 
     def __repr__(self):
