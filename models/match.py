@@ -24,4 +24,4 @@ class Match:
             self.winner = "Draw"
 
     def __repr__(self):
-        return f"{self.player_1} vs {self.player_2} : {self.winner}"
+        return f"{self.player_1} vs {self.player_2}"

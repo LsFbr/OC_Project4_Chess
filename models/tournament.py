@@ -73,7 +73,10 @@ class Tournament:
         return round
 
     def __repr__(self):
-        return f"{self.name}"
+        return (
+            f"<<<Tournament : {self.name} --- "
+            f"Round |{self.current_round_number}/{self.number_of_rounds}|>>>"
+        )
 
     def save_tournament(self):
         tournaments_table = db.table("tournaments")
