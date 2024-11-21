@@ -142,10 +142,31 @@ class Controller:
 
         self.view.print("\nPlayer successfully updated.\n")
 
+    def db_sort_tournament_players(self, tournament):
+        """
+        Sort players in a tournament by score (descending)
+         and then by name (ascending).
+         return: the updated tournament
+        """
+        if "players" not in tournament or not tournament["players"]:
+            self.view.print("\nNo players available in this tournament.\n")
+            return tournament
+
+        sorted_players = sorted(
+            tournament["players"],
+            key=lambda x: (
+                -x.get("score", 0), x["name"].lower(), x["surname"].lower()
+            )
+        )
+
+        tournament["players"] = sorted_players
+
+        return tournament
+
     def db_sort_players_alphabetically(self):
         """
         Sort players alphabetically by name and surname in the players table
-        in the database, and update their keys to match their index.
+        in the database.
         """
         players_table = db.table("players")
 
@@ -225,6 +246,7 @@ class Controller:
         # Save the tournament in the database
         tournaments_table = db.table("tournaments")
         tournaments_table.insert(self.tournament.serialize())
+        self.tournament = None
 
         self.view.print("\nTournament saved.\n")
 
@@ -250,8 +272,8 @@ class Controller:
         for chess_id in national_chess_ids_list:
             if chess_id in existing_ids:
                 self.view.print(
-                    f"\nPlayer with National Chess ID {chess_id} "
-                    "is already in the tournament.\n"
+                    f"Player with National Chess ID {chess_id} "
+                    "is already in the tournament."
                 )
                 continue
 
@@ -263,24 +285,31 @@ class Controller:
                     "name": player_data["name"],
                     "surname": player_data["surname"],
                     "birthday": player_data["birthday"],
-                    "national_chess_id": player_data["national_chess_id"]
+                    "national_chess_id": player_data["national_chess_id"],
+                    "score": 0.0
                     }
 
                 if player not in tournament["players"]:
                     selected_players.append(player)
+                    self.view.print(
+                        f"Added {chess_id} "
+                        f"{player['name']} {player['surname']}."
+                    )
             else:
                 self.view.print(
-                    f"\nPlayer with National Chess ID {chess_id} not found.\n"
+                    f"Player with National Chess ID {chess_id} not found."
                 )
 
         tournament["players"].extend(selected_players)
+
+        tournament = self.db_sort_tournament_players(tournament)
 
         tournaments_table = db.table("tournaments")
         tournaments_table.update(
             tournament, doc_ids=[tournament_id]
         )
 
-        self.view.print("\nTournament successfully updated.\n")
+        self.view.print("\nTournament successfully updated.")
 
     def remove_tournament_players(self, tournament, tournament_id):
         self.view.show_all_tournament_players(tournament["players"])
@@ -309,13 +338,17 @@ class Controller:
 
         for player in selected_players:
             tournament["players"].remove(player)
+            self.view.print(
+                f"Removed {chess_id} "
+                f"{player['name']} {player['surname']}."
+            )
 
         tournaments_table = db.table("tournaments")
         tournaments_table.update(
             tournament, doc_ids=[tournament_id]
         )
 
-        self.view.print("\nTournament successfully updated.\n")
+        self.view.print("Tournament successfully updated.")
 
     def edit_tournament(self):
         tournaments_table = db.table("tournaments")
@@ -338,7 +371,7 @@ class Controller:
         if not tournament:
             self.view.print("\nTournament not found.\n")
             return
-
+        self.view.show_tournament_infos(tournament)
         self.tournament_edit_menu(tournament, tournament_id)
 
     def edit_tournament_infos(self, tournament, tournament_id):
