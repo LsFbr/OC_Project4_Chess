@@ -31,18 +31,11 @@ class View:
 
     def tournament_edit_menu(self):
         print("\n<<<Tournament Edit Menu>>>")
-        print("Enter 1 to show tournament informations")
+        print("Enter 1 to show tournament informations and players")
         print("Enter 2 to edit tournament informations")
-        print("Enter 3 to edit tournament players")
+        print("Enter 3 to add players to the tournament")
+        print("Enter 4 to remove players from the tournament")
         print("Enter 0 to return to the tournament menu")
-        return input("Enter your choice : ")
-
-    def tournament_players_menu(self):
-        print("\n <<<Tournament Players Menu>>>")
-        print("Enter 1 to show all players in the tournament")
-        print("Enter 2 to add players to the tournament")
-        print("Enter 3 to remove players from the tournament")
-        print("Enter 0 to return to the tournament edit menu")
         return input("Enter your choice : ")
 
     def prompt_for_add_tournament_players(self):
@@ -59,16 +52,25 @@ class View:
         )
         return national_chess_ids
 
-    def show_tournament(self, tournament):
-        print("\n<<<Tournament Informations>>>")
-        print(f"Name: {tournament['name']}")
-        print(f"Location: {tournament['location']}")
-        print(f"Description: {tournament['description']}")
-        print(
-            f"Current round: "
-            f"{tournament['current_round_number']}/"
-            f"{tournament['number_of_rounds']}"
-        )
+    def show_tournament_infos(self, tournament):
+        table = PrettyTable()
+        table.title = "<<<Tournament Informations>>>"
+        table.field_names = [
+            "Name", "Location", "Description", "Current Round", "Players"
+        ]
+
+        table.add_row([
+            tournament["name"],
+            tournament["location"],
+            tournament["description"],
+            (
+                f"{tournament['current_round_number']}/"
+                f"{tournament['number_of_rounds']}"
+            ),
+            len(tournament["players"])
+        ])
+
+        print(table)
 
     def show_all_tournaments(self, tournaments):
         if not tournaments:
@@ -146,7 +148,7 @@ class View:
         table = PrettyTable()
         table.title = "<<<Tournament's Players>>>"
         table.field_names = [
-            "National Chess ID", "Name", "Surname", "Birthday"
+            "National Chess ID", "Name", "Surname", "Birthday", "Score"
         ]
 
         for player in players:
@@ -154,7 +156,8 @@ class View:
                 player["national_chess_id"],
                 player["name"],
                 player["surname"],
-                player["birthday"]
+                player["birthday"],
+                player["score"]
             ])
 
         print(table)
