@@ -5,13 +5,15 @@ class Round:
     def __init__(
             self,
             round_name: str,
-
+            matches=[],
+            start_date=None,
+            end_date=None
     ):
-        self.round_name = round_name
 
-        self.start_date = None
-        self.end_date = None
-        self.matches = []
+        self.round_name = round_name
+        self.matches = matches
+        self.start_date = start_date
+        self.end_date = end_date
 
     def serialize(self):
         return {
@@ -22,10 +24,13 @@ class Round:
         }
 
     def start_round(self):
+        self.set_start_date()
+
+    def set_start_date(self):
         self.start_date = datetime.now()
 
-    def end_round(self):
+    def set_end_date(self):
         self.end_date = datetime.now()
 
     def __repr__(self):
-        return f"{self.round_name} : {self.matches}"
+        return f"{self.round_name}"

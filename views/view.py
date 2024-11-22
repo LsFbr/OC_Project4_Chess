@@ -205,10 +205,34 @@ class View:
         )
         return national_chess_id
 
-    def show_round_matches(self, round):
-        print(f"{round}")
-        for match in round.matches:
-            print(f"{match}")
+    def show_round_matches(self, round_instance):
+        table = PrettyTable()
+        table.title = f"<<<{round_instance.round_name}>>>"
+        table.field_names = ["Player 1", "Score", "Player 2"]
+
+        for match in round_instance.matches:
+            table.add_row([
+                f"{match.player_1.name} {match.player_1.surname}",
+                f"{match.player_1_score}|{match.player_2_score}",
+                f"{match.player_2.name} {match.player_2.surname}"
+            ])
+        print(table)
+
+    def prompt_for_create_round(self, round_number):
+        print(
+            f"\nAre you ready to create matches for Round {round_number} ?\n"
+            "Press Enter to continue "
+            "or enter 'n' to return to tournaments menu"
+        )
+        return input("Your choice : ")
+
+    def prompt_for_start_round(self, round):
+        print(
+            f"Are you ready to start {round.round_name}?\n"
+            "Press Enter to continue "
+            "or enter 'n' to return to tournaments menu"
+        )
+        return input("Your choice : ")
 
     def print(self, data):
         print(f"\n{data}")

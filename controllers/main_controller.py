@@ -1,4 +1,6 @@
 from models.player import Player
+from models.match import Match
+from models.round import Round
 from models.tournament import Tournament
 from views.view import View
 
@@ -144,8 +146,7 @@ class Controller:
 
     def db_sort_tournament_players(self, tournament):
         """
-        Sort players in a tournament by score (descending)
-         and then by name (ascending).
+        Sort players in a tournament by name (ascending).
          return: the updated tournament
         """
         if "players" not in tournament or not tournament["players"]:
@@ -155,7 +156,7 @@ class Controller:
         sorted_players = sorted(
             tournament["players"],
             key=lambda x: (
-                -x.get("score", 0), x["name"].lower(), x["surname"].lower()
+                x["name"].lower(), x["surname"].lower()
             )
         )
 
@@ -428,33 +429,88 @@ class Controller:
 
         tournament, tournament_id = self.select_tournament()
         players = []
-        for player in tournament["players"]:
+        for player_data in tournament["players"]:
             player = Player(
-                player["name"],
-                player["surname"],
-                player["birthday"],
-                player["national_chess_id"],
-                player["score"]
+                player_data["name"],
+                player_data["surname"],
+                player_data["birthday"],
+                player_data["national_chess_id"],
+                player_data["score"]
             )
             players.append(player)
+
+        rounds = []
+        if tournament["rounds"]:
+            for round_data in tournament["rounds"]:
+                matches = []
+                for match_data in round_data["matches"]:
+                    player_1_data, player_1_score = match_data[0]
+                    player_2_data, player_2_score = match_data[1]
+
+                    player_1 = Player(
+                        player_1_data["name"],
+                        player_1_data["surname"],
+                        player_1_data["birthday"],
+                        player_1_data["national_chess_id"]
+                    )
+                    player_2 = Player(
+                        player_2_data["name"],
+                        player_2_data["surname"],
+                        player_2_data["birthday"],
+                        player_2_data["national_chess_id"]
+                    )
+
+                    match = Match(
+                        player_1,
+                        player_2,
+                        player_1_score,
+                        player_2_score
+                    )
+                    matches.append(match)
+
+                round_instance = Round(
+                    round_name=round_data["round_name"],
+                    matches=matches,
+                    start_date=round_data.get("start_date"),
+                    end_date=round_data.get("end_date")
+                )
+                rounds.append(round_instance)
 
         self.tournament = Tournament(
             tournament["name"],
             tournament["location"],
             tournament["description"],
             players,
-            tournament["number_of_rounds"]
+            tournament["number_of_rounds"],
+            tournament["current_round_number"],
+            rounds,
+            tournament["start_date"],
+            tournament["end_date"]
         )
 
         self.view.print(self.tournament)
 
-        round = next(
-            (
-                round for round in self.tournament.rounds
-                if round.start_date and not round.end_date
-            ),
-            None
-        )
+        if not self.tournament.start_date:
+            self.tournament.set_start_date()
 
-        # self.tournament.create_round()
+        round_number = int(self.tournament.current_round_number) + 1
+
+        choice = self.view.prompt_for_create_round(round_number)
+        if not choice:
+            new_round = self.tournament.create_round()
+        if choice == "n":
+            self.view.print("Round creation cancelled.")
+            return
+
+        self.view.show_round_matches(new_round)
+
+        choice = self.view.prompt_for_start_round(new_round)
+        if not choice:
+            self.tournament.start_current_round()
+        if choice == "n":
+            self.view.print("Round start cancelled.")
+            return
+
+        self.view.print(f"{new_round.round_name} started.")
+
         # self.tournament.save_tournament()

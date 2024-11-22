@@ -1,6 +1,7 @@
 from .round import Round
 from .match import Match
 
+from datetime import datetime
 import random
 from tinydb import TinyDB, Query
 
@@ -14,19 +15,21 @@ class Tournament:
             location,
             description,
             players,
-            number_of_rounds=4
+            number_of_rounds=4,
+            current_round_number=0,
+            rounds=[],
+            start_date=None,
+            end_date=None
     ):
         self.name = name
         self.location = location
         self.description = description
         self.players = players
         self.number_of_rounds = number_of_rounds
-
-        self.start_date = None
-        self.end_date = None
-        self.current_round_number = 0
-        self.rounds = []
-        self.previous_matches = []
+        self.current_round_number = current_round_number
+        self.rounds = rounds
+        self.start_date = start_date
+        self.end_date = end_date
 
     def serialize(self):
         return {
@@ -45,9 +48,8 @@ class Tournament:
             "number_of_rounds": self.number_of_rounds,
             "current_round_number": self.current_round_number,
             "rounds": [round.serialize() for round in self.rounds],
-            "previous_matches": [
-                match.serialize() for match in self.previous_matches
-            ]
+            "start_date": self.start_date,
+            "end_date": self.end_date
         }
 
     def create_round(self):
@@ -67,16 +69,25 @@ class Tournament:
             match = Match(player_1, player_2)
 
             round.matches.append(match)
-            self.previous_matches.append(match)
 
         self.rounds.append(round)
         return round
+
+    def start_current_round(self):
+        self.rounds[-1].start_round()
+        self.rounds[-1].set_start_date()
 
     def __repr__(self):
         return (
             f"<<<Tournament : {self.name} --- "
             f"Round |{self.current_round_number}/{self.number_of_rounds}|>>>"
         )
+
+    def set_start_date(self):
+        self.start_date = datetime.now()
+
+    def set_end_date(self):
+        self.end_date = datetime.now()
 
     def save_tournament(self):
         tournaments_table = db.table("tournaments")
