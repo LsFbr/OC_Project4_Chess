@@ -17,7 +17,7 @@ class Tournament:
             players,
             number_of_rounds=4,
             current_round_number=0,
-            rounds=[],
+            rounds=None,
             start_date=None,
             end_date=None
     ):
@@ -27,7 +27,7 @@ class Tournament:
         self.players = players
         self.number_of_rounds = number_of_rounds
         self.current_round_number = current_round_number
-        self.rounds = rounds
+        self.rounds = rounds if rounds else []
         self.start_date = start_date
         self.end_date = end_date
 
@@ -75,7 +75,6 @@ class Tournament:
 
     def start_current_round(self):
         self.rounds[-1].start_round()
-        self.rounds[-1].set_start_date()
 
     def __repr__(self):
         return (
@@ -92,3 +91,10 @@ class Tournament:
     def save_tournament(self):
         tournaments_table = db.table("tournaments")
         tournaments_table.upsert(self.serialize(), Query().name == self.name)
+
+    def get_ranked_players(self):
+        return sorted(
+            self.players, key=lambda player: (
+                -player.score, player.name.lower(), player.surname.lower()
+            )
+        )

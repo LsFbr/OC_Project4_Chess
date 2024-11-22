@@ -5,8 +5,6 @@ class Match:
         self.player_1_score = player_1_score
         self.player_2_score = player_2_score
 
-        self.winner = None
-
     def serialize(self):
         return (
             [self.player_1.serialize(), self.player_1_score],
@@ -14,16 +12,18 @@ class Match:
         )
 
     def set_result(self, result):
+        result = int(result)
         if result == 1:
             self.player_1_score += 1
-            self.winner = self.player_1
+            self.player_1.score += 1
         elif result == 2:
             self.player_2_score += 1
-            self.winner = self.player_2
-        else:
+            self.player_2.score += 1
+        elif result == 0:
             self.player_1_score += 0.5
+            self.player_1.score += 0.5
             self.player_2_score += 0.5
-            self.winner = "Draw"
+            self.player_2.score += 0.5
 
     def __repr__(self):
         return (

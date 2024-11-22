@@ -162,6 +162,24 @@ class View:
 
         print(table)
 
+    def show_ranked_players(self, ranked_players):
+        table = PrettyTable()
+        table.title = "<<<Tournament Ranking>>>"
+        table.field_names = [
+            "Rank", "National Chess ID", "Name", "Surname", "Score"
+        ]
+
+        for rank, player in enumerate(ranked_players, start=1):
+            table.add_row([
+                rank,
+                player.national_chess_id,
+                player.name,
+                player.surname,
+                player.score
+            ])
+
+        print(table)
+
     def show_all_players(self, players):
         if not players:
             print("\nNo players available.")
@@ -217,6 +235,41 @@ class View:
                 f"{match.player_2.name} {match.player_2.surname}"
             ])
         print(table)
+
+    def show_match(self, match_instance):
+        table = PrettyTable()
+        table.field_names = ["Player 1", "Player 2"]
+        table.add_row([
+            f"{match_instance.player_1.name} "
+            f"{match_instance.player_1.surname}",
+
+            f"{match_instance.player_2.name} "
+            f"{match_instance.player_2.surname}"
+        ])
+        print(table)
+
+    def show_round_results(self, round_instance):
+        table = PrettyTable()
+        table.title = f"<<<{round_instance.round_name} results>>>"
+        table.field_names = ["Player 1", "Score", "Player 2"]
+
+        for match in round_instance.matches:
+            table.add_row([
+                f"{match.player_1.name} {match.player_1.surname}",
+                f"{match.player_1_score}|{match.player_2_score}",
+                f"{match.player_2.name} {match.player_2.surname}"
+            ])
+        print(table)
+
+    def prompt_for_match_result(self):
+        print(
+            "\nEnter the result of the match\n"
+            "Enter 1 if Player 1 wins\n"
+            "Enter 2 if Player 2 wins\n"
+            "Enter 0 for a draw"
+        )
+        result = input("Your choice : ")
+        return result
 
     def prompt_for_create_round(self, round_number):
         print(

@@ -5,13 +5,13 @@ class Round:
     def __init__(
             self,
             round_name: str,
-            matches=[],
+            matches=None,
             start_date=None,
             end_date=None
     ):
 
         self.round_name = round_name
-        self.matches = matches
+        self.matches = matches if matches else []
         self.start_date = start_date
         self.end_date = end_date
 
