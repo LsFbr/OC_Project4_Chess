@@ -1,3 +1,5 @@
+from .utils import format_date
+
 from prettytable import PrettyTable
 
 
@@ -90,11 +92,11 @@ class View:
 
         table.add_row([
             tournament["name"],
-            tournament["start_date"]
+            format_date(tournament["start_date"])
             if tournament["start_date"]
             else "Not started yet",
 
-            tournament["end_date"]
+            format_date(tournament["end_date"])
             if tournament["end_date"]
             else "Not finished yet"
         ])
@@ -109,7 +111,14 @@ class View:
         table = PrettyTable()
         table.title = "<<<Tournaments List>>>"
         table.field_names = [
-            "ID", "Name", "Location", "Description", "Current Round", "Players"
+            "ID",
+            "Name",
+            "Location",
+            "Description",
+            "Current Round",
+            "Players",
+            "Start Date",
+            "End Date"
         ]
 
         for tournament in tournaments:
@@ -122,10 +131,17 @@ class View:
                     f"{tournament['current_round_number']}/"
                     f"{tournament['number_of_rounds']}"
                 ),
-                len(tournament["players"])
+                len(tournament["players"]),
+                format_date(tournament["start_date"])
+                if tournament["start_date"]
+                else "Not started yet",
+
+                format_date(tournament["end_date"])
+                if tournament["end_date"]
+                else "Not finished yet"
             ])
 
-        print(table)
+        print(f"\n{table}")
 
     def prompt_for_edit_tournament_infos(self):
         print(
@@ -191,9 +207,9 @@ class View:
 
         print(table)
 
-    def show_tournament_results(self, tournament, ranked_players):
+    def show_tournament_results(self, tournament_instance, ranked_players):
         table = PrettyTable()
-        table.title = (f"<<<{tournament.name} - Final Ranking>>>")
+        table.title = (f"<<<{tournament_instance.name} - Final Ranking>>>")
         table.field_names = [
             "Rank", "National Chess ID", "Name", "Surname", "Score"
         ]
@@ -208,6 +224,14 @@ class View:
             ])
 
         print(table)
+        print(
+            f"    Start date: {format_date(
+                str(tournament_instance.start_date)
+            )}\n"
+            f"    End date: {format_date(
+                str(tournament_instance.end_date)
+            )}"
+        )
 
     def show_ranked_players(self, ranked_players):
         table = PrettyTable()
@@ -225,7 +249,7 @@ class View:
                 player.score
             ])
 
-        print(table)
+        print(f"\n{table}")
 
     def show_all_players(self, players):
         if not players:
@@ -281,7 +305,7 @@ class View:
                 f"{match.player_1_score}|{match.player_2_score}",
                 f"{match.player_2.name} {match.player_2.surname}"
             ])
-        print(table)
+        print(f"\n{table}")
 
     def show_match(self, match_instance):
         table = PrettyTable()
@@ -293,11 +317,11 @@ class View:
             f"{match_instance.player_2.name} "
             f"{match_instance.player_2.surname}"
         ])
-        print(table)
+        print(f"\n{table}")
 
     def show_round_results(self, round_instance):
         table = PrettyTable()
-        table.title = f"<<<{round_instance.round_name} results>>>"
+        table.title = (f"<<<{round_instance.round_name} results>>>")
         table.field_names = ["Player 1", "Score", "Player 2"]
 
         for match in round_instance.matches:
@@ -306,11 +330,15 @@ class View:
                 f"{match.player_1_score}|{match.player_2_score}",
                 f"{match.player_2.name} {match.player_2.surname}"
             ])
-        print(table)
+        print(f"\n{table}")
+        print(
+            f"    Start date: {format_date(str(round_instance.start_date))}\n"
+            f"    End date: {format_date(str(round_instance.end_date))}"
+        )
 
     def prompt_for_match_result(self):
         print(
-            "\nEnter the result of the match\n"
+            "Enter the result of the match\n"
             "Enter 1 if Player 1 wins\n"
             "Enter 2 if Player 2 wins\n"
             "Enter 0 for a draw"
