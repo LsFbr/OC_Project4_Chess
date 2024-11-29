@@ -4,6 +4,8 @@ from models.round import Round
 from models.tournament import Tournament
 from views.view import View
 
+from datetime import datetime
+
 from tinydb import TinyDB, Query
 
 db = TinyDB("data/db.json")
@@ -428,7 +430,9 @@ class Controller:
     def start_tournament(self):
         # Select a tournament
         tournament, tournament_id = self.select_tournament()
+        self.run_tournament(tournament)
 
+    def run_tournament(self, tournament):
         # Create a Tournament object from the selected tournament
         players = []
         for player_data in tournament["players"]:
@@ -473,8 +477,16 @@ class Controller:
                 round_instance = Round(
                     round_name=round_data["round_name"],
                     matches=matches,
-                    start_date=round_data.get("start_date"),
-                    end_date=round_data.get("end_date")
+                    start_date=(
+                        datetime.fromisoformat(round_data["start_date"])
+                        if round_data.get("start_date")
+                        else None
+                    ),
+                    end_date=(
+                        datetime.fromisoformat(round_data["end_date"])
+                        if round_data.get("end_date")
+                        else None
+                    )
                 )
                 rounds.append(round_instance)
 
@@ -486,8 +498,17 @@ class Controller:
             tournament["number_of_rounds"],
             tournament["current_round_number"],
             rounds,
-            tournament["start_date"],
-            tournament["end_date"]
+            start_date=(
+                datetime.fromisoformat(tournament["start_date"])
+                if tournament["start_date"]
+                else None
+            ),
+            end_date=(
+                datetime.fromisoformat(tournament["end_date"])
+                if tournament["end_date"]
+                else None
+            )
+
         )
 
         self.view.print(self.tournament)
@@ -495,7 +516,13 @@ class Controller:
         if not self.tournament.start_date:
             self.tournament.set_start_date()
 
-        while not self.tournament.end_date:
+        if self.tournament.end_date:
+            self.view.print("Tournament already ended.")
+            ranked_players = self.tournament.get_ranked_players()
+            self.view.show_tournament_results(self.tournament, ranked_players)
+            return
+
+        while True:
             # Prompt the user to create a new round
             round_number = int(self.tournament.current_round_number) + 1
 
@@ -527,7 +554,18 @@ class Controller:
             round_instance.set_end_date()
 
             self.view.show_round_results(round_instance)
+
+            if (self.tournament.current_round_number ==
+                    self.tournament.number_of_rounds):
+
+                self.tournament.set_end_date()
+                self.view.print("Tournament ended !!!")
+                self.view.show_tournament_results(
+                    self.tournament, ranked_players
+                )
+                self.tournament.save_tournament()
+                return
+
             ranked_players = self.tournament.get_ranked_players()
             self.view.show_ranked_players(ranked_players)
-
-        # self.tournament.save_tournament()
+            self.tournament.save_tournament()
