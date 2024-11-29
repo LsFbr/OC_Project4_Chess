@@ -83,6 +83,24 @@ class View:
 
         print(table)
 
+    def show_tournament_details(self, tournament):
+        table = PrettyTable()
+        table.title = "<<<Tournament Details>>>"
+        table.field_names = ["Name", "Start Date", "End Date"]
+
+        table.add_row([
+            tournament["name"],
+            tournament["start_date"]
+            if tournament["start_date"]
+            else "Not started yet",
+
+            tournament["end_date"]
+            if tournament["end_date"]
+            else "Not finished yet"
+        ])
+
+        print(table)
+
     def show_all_tournaments(self, tournaments):
         if not tournaments:
             print("\nNo tournaments available.")
