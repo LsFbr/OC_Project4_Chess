@@ -319,6 +319,51 @@ class View:
         ])
         print(f"\n{table}")
 
+    def show_all_rounds(self, tournament, args):
+        """
+        Display all the rounds of a tournament
+        args: list of rounds
+        """
+        table = PrettyTable()
+        table.title = (
+            f"<<<{tournament['name']} - "
+            "Rounds List - "
+            f"{tournament["current_round_number"]}/"
+            f"{tournament["number_of_rounds"]}>>>"
+        )
+        table.field_names = ["Round", "Dates", "Matches"]
+
+        for round_instance in args:
+            # Create a table for the matches of the round
+            matches_table = PrettyTable()
+            matches_table.field_names = ["Player 1", "Score", "Player 2"]
+            matches_table.align["Player 1"] = "r"
+            matches_table.align["Score"] = "c"
+            matches_table.align["Player 2"] = "l"
+            for match in round_instance.matches:
+                matches_table.add_row([
+                    f"({match.player_1.national_chess_id}) "
+                    f"{match.player_1.name} {match.player_1.surname}",
+                    f"{match.player_1_score} | {match.player_2_score}",
+                    f"{match.player_2.name} {match.player_2.surname} "
+                    f"({match.player_2.national_chess_id})"
+                ])
+
+            # Convert the matches table to a string
+            matches_str = matches_table.get_string()
+
+            # Ajouter les informations du round au tableau principal
+            table.add_row([
+                round_instance.round_name,
+                (
+                    f"Started: {format_date(str(round_instance.start_date))}\n"
+                    f"Ended: {format_date(str(round_instance.end_date))}"
+                ),
+                matches_str
+            ])
+
+        print(f"\n{table}")
+
     def show_round_results(self, round_instance):
         table = PrettyTable()
         table.title = (f"<<<{round_instance.round_name} results>>>")
