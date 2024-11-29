@@ -584,6 +584,8 @@ class Controller:
 
             self.view.show_round_results(round_instance)
 
+            ranked_players = self.tournament.get_ranked_players()
+
             if (self.tournament.current_round_number ==
                     self.tournament.number_of_rounds):
 
@@ -595,6 +597,5 @@ class Controller:
                 self.tournament.save_tournament()
                 return
 
-            ranked_players = self.tournament.get_ranked_players()
             self.view.show_ranked_players(ranked_players)
             self.tournament.save_tournament()
