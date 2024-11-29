@@ -28,6 +28,8 @@ class Controller:
                 self.players_menu()
             elif choice == "2":
                 self.tournaments_menu()
+            elif choice == "3":
+                self.reports_menu()
             elif choice == "0":
                 self.view.print("\nGoodbye!\n")
                 return
@@ -55,6 +57,22 @@ class Controller:
                 self.edit_tournament()
             elif choice == "4":
                 self.start_tournament()
+            elif choice == "0":
+                return
+
+    def reports_menu(self):
+        while True:
+            choice = self.view.reports_menu()
+            if choice == "1":
+                self.db_show_all_players()
+            elif choice == "2":
+                self.db_show_all_tournaments()
+            elif choice == "3":
+                self.report_tournament_details()
+            elif choice == "4":
+                self.report_tournament_players()
+            elif choice == "5":
+                self.report_tournament_rounds_and_matches()
             elif choice == "0":
                 return
 

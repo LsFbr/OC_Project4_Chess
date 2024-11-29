@@ -9,6 +9,7 @@ class View:
         print("\n<<<Main Menu>>>")
         print("Enter 1 for Players Menu")
         print("Enter 2 for Tournaments Menu")
+        print("Enter 3 for Reports Menu")
         print("Enter 0 to quit")
         return input("Enter your choice : ")
 
