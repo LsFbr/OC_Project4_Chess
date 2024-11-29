@@ -101,7 +101,7 @@ class View:
             else "Not finished yet"
         ])
 
-        print(table)
+        print(f"\n{table}")
 
     def show_all_tournaments(self, tournaments):
         if not tournaments:
@@ -205,7 +205,7 @@ class View:
                 player["score"]
             ])
 
-        print(table)
+        print(f"\n{table}")
 
     def show_tournament_results(self, tournament_instance, ranked_players):
         table = PrettyTable()
