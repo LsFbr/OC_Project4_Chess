@@ -30,6 +30,16 @@ class View:
         print("Enter 0 to return to the main menu")
         return input("Enter your choice : ")
 
+    def reports_menu(self):
+        print("\n<<<Reports Menu>>>")
+        print("Enter 1 to show all players (alphabetically)")
+        print("Enter 2 to show all tournaments")
+        print("Enter 3 to show tournament details (name and dates)")
+        print("Enter 4 to show players of a tournament (alphabetically)")
+        print("Enter 5 to show all rounds and matches of a tournament")
+        print("Enter 0 to return to the main menu")
+        return input("Enter your choice : ")
+
     def tournament_edit_menu(self):
         print("\n<<<Tournament Edit Menu>>>")
         print("Enter 1 to show tournament informations and players")
