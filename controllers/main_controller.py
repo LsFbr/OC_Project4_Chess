@@ -102,6 +102,44 @@ class Controller:
             sorted_tournament = self.db_sort_tournament_players(tournament)
             self.view.show_all_tournament_players(sorted_tournament["players"])
 
+    def report_tournament_rounds_and_matches(self):
+        tournament, tournament_id = self.select_tournament()
+        if tournament and "rounds" in tournament:
+            rounds = []
+            for round_data in tournament["rounds"]:
+                round_instance = Round(
+                    round_name=round_data["round_name"],
+                    matches=[],
+                    start_date=round_data.get("start_date"),
+                    end_date=round_data.get("end_date")
+                )
+
+                for match_data in round_data["matches"]:
+                    player_1_data, player_1_score = match_data[0]
+                    player_2_data, player_2_score = match_data[1]
+
+                    player_1 = Player(
+                        player_1_data["name"],
+                        player_1_data["surname"],
+                        player_1_data["birthday"],
+                        player_1_data["national_chess_id"]
+                    )
+                    player_2 = Player(
+                        player_2_data["name"],
+                        player_2_data["surname"],
+                        player_2_data["birthday"],
+                        player_2_data["national_chess_id"]
+                    )
+
+                    match = Match(
+                        player_1,
+                        player_2,
+                        player_1_score,
+                        player_2_score)
+                    round_instance.matches.append(match)
+                rounds.append(round_instance)
+            self.view.show_all_rounds(tournament, rounds)
+
     def db_show_all_players(self):
         self.db_sort_players_alphabetically()
 

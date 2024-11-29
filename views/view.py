@@ -352,7 +352,7 @@ class View:
             # Convert the matches table to a string
             matches_str = matches_table.get_string()
 
-            # Ajouter les informations du round au tableau principal
+            # Add the round to the main table
             table.add_row([
                 round_instance.round_name,
                 (
