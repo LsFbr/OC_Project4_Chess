@@ -48,8 +48,16 @@ class Tournament:
             "number_of_rounds": self.number_of_rounds,
             "current_round_number": self.current_round_number,
             "rounds": [round.serialize() for round in self.rounds],
-            "start_date": self.start_date,
-            "end_date": self.end_date
+            "start_date": (
+                self.start_date.isoformat()
+                if self.start_date
+                else None
+            ),
+            "end_date": (
+                self.end_date.isoformat()
+                if self.end_date
+                else None
+            )
         }
 
     def create_round(self):
