@@ -162,6 +162,24 @@ class View:
 
         print(table)
 
+    def show_tournament_results(self, tournament, ranked_players):
+        table = PrettyTable()
+        table.title = (f"<<<{tournament.name} - Final Ranking>>>")
+        table.field_names = [
+            "Rank", "National Chess ID", "Name", "Surname", "Score"
+        ]
+
+        for rank, player in enumerate(ranked_players, start=1):
+            table.add_row([
+                rank,
+                player.national_chess_id,
+                player.name,
+                player.surname,
+                player.score
+            ])
+
+        print(table)
+
     def show_ranked_players(self, ranked_players):
         table = PrettyTable()
         table.title = "<<<Tournament Ranking>>>"
