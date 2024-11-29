@@ -91,6 +91,17 @@ class Controller:
             elif choice == "0":
                 return
 
+    def report_tournament_details(self):
+        tournament, _ = self.select_tournament()
+        if tournament:
+            self.view.show_tournament_details(tournament)
+
+    def report_tournament_players(self):
+        tournament, _ = self.select_tournament()
+        if tournament:
+            sorted_tournament = self.db_sort_tournament_players(tournament)
+            self.view.show_all_tournament_players(sorted_tournament["players"])
+
     def db_show_all_players(self):
         self.db_sort_players_alphabetically()
 
