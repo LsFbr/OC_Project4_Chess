@@ -83,7 +83,7 @@ class View:
             len(tournament["players"])
         ])
 
-        print(table)
+        print(f"\n{table}")
 
     def show_tournament_details(self, tournament):
         table = PrettyTable()
@@ -223,7 +223,7 @@ class View:
                 player.score
             ])
 
-        print(table)
+        print(f"\n{table}")
         print(
             f"    Start date: {format_date(
                 str(tournament_instance.start_date)
@@ -270,7 +270,7 @@ class View:
                 player["birthday"]
             ])
 
-        print(table)
+        print(f"\n{table}")
 
     def prompt_for_edit_player(self):
         print(
