@@ -68,14 +68,44 @@ class Tournament:
         if self.current_round_number == 1:
             random.shuffle(self.players)
         else:
-            self.players.sort(key=lambda x: x.score, reverse=True)
+            self.players.sort(
+                key=lambda x: (x.score, random.random()), reverse=True
+            )
 
-        for i in range(0, len(self.players) - 1, 2):
-            player_1 = self.players[i]
-            player_2 = self.players[i + 1]
+        # Track all pairs that have already played
+        played_pairs = set()
+        for previous_round in self.rounds:
+            for match in previous_round.matches:
+                pair = frozenset(
+                    [
+                        match.player_1.national_chess_id,
+                        match.player_2.national_chess_id
+                    ]
+                )
+                played_pairs.add(pair)
 
-            match = Match(player_1, player_2)
+        unpaired_players = self.players[:]
 
+        while len(unpaired_players) > 1:
+            player_1 = unpaired_players.pop(0)
+            best_match = None
+
+            # Find the first player_2 who has not played with player_1 yet
+            for player_2 in unpaired_players:
+                current_pair = frozenset(
+                    [player_1.national_chess_id, player_2.national_chess_id]
+                )
+                if current_pair not in played_pairs:
+                    best_match = player_2
+                    break
+
+            # Pick the first remaining player
+            if not best_match:
+                best_match = unpaired_players[0]
+
+            unpaired_players.remove(best_match)
+
+            match = Match(player_1, best_match)
             round.matches.append(match)
 
         self.rounds.append(round)
@@ -103,6 +133,6 @@ class Tournament:
     def get_ranked_players(self):
         return sorted(
             self.players, key=lambda player: (
-                -player.score, player.name.lower(), player.surname.lower()
+                -player.score, random.random()
             )
         )
