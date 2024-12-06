@@ -195,11 +195,23 @@ class View:
         return name, location, description, number_of_rounds
 
     def show_player(self, player):
-        print("\n<<<Player Informations>>>")
-        print(f"Name: {player['name']}")
-        print(f"Surname: {player['surname']}")
-        print(f"Birthday: {player['birthday']}")
-        print(f"National Chess ID: {player['national_chess_id']}")
+        table = PrettyTable()
+        table.title = "<<<Player Information>>>"
+        table.field_names = [
+            "Name",
+            "Surname",
+            "Birthday",
+            "National Chess ID"
+        ]
+
+        table.add_row([
+            player['name'],
+            player['surname'],
+            player['birthday'],
+            player['national_chess_id']
+        ])
+
+        print(f"\n{table}")
 
     def show_all_tournament_players(self, players):
         if not players:
