@@ -4,52 +4,68 @@ from prettytable import PrettyTable
 
 
 class View:
+    def display_menu(self, title, options):
+        """
+        Display a menu and return the choice
+        title: str
+        options: dict
+        """
+        print(f"\n<<<{title}>>>")
+        for key, value in options.items():
+            print(f"Enter {key} to {value}")
+        return input("Enter your choice : ")
+
     def welcome(self):
         print("\n<<<Welcome to the chess tournament manager>>>")
 
     def main_menu(self):
-        print("\n<<<Main Menu>>>")
-        print("Enter 1 for Players Menu")
-        print("Enter 2 for Tournaments Menu")
-        print("Enter 3 for Reports Menu")
-        print("Enter 0 to quit")
-        return input("Enter your choice : ")
+        options = {
+            "1": "access the Players Menu",
+            "2": "access the Tournaments Menu",
+            "3": "access the Reports Menu",
+            "0": "quit"
+        }
+        return self.display_menu("Main Menu", options)
 
     def players_menu(self):
-        print("\n<<<Players Menu>>>")
-        print("Enter 1 to show all players")
-        print("Enter 2 to add a player")
-        print("Enter 3 to edit a player")
-        print("Enter 0 to return to the main menu")
-        return input("Enter your choice : ")
+        options = {
+            "1": "display all players",
+            "2": "add a player",
+            "3": "edit a player",
+            "0": "return to main menu"
+        }
+        return self.display_menu("Players Menu", options)
 
     def tournaments_menu(self):
-        print("\n<<<Tournaments Menu>>>")
-        print("Enter 1 to show all tournaments")
-        print("Enter 2 to create a tournament")
-        print("Enter 3 to edit a tournament")
-        print("Enter 4 to start a tournament")
-        print("Enter 0 to return to the main menu")
-        return input("Enter your choice : ")
+        options = {
+            "1": "display all tournaments",
+            "2": "create a tournament",
+            "3": "edit a tournament",
+            "4": "start a tournament",
+            "0": "return to main menu"
+        }
+        return self.display_menu("Tournaments Menu", options)
 
     def reports_menu(self):
-        print("\n<<<Reports Menu>>>")
-        print("Enter 1 to show all players (alphabetically)")
-        print("Enter 2 to show all tournaments")
-        print("Enter 3 to show tournament details (name and dates)")
-        print("Enter 4 to show players of a tournament (alphabetically)")
-        print("Enter 5 to show all rounds and matches of a tournament")
-        print("Enter 0 to return to the main menu")
-        return input("Enter your choice : ")
+        options = {
+            "1": "display all players (alphabetically)",
+            "2": "display all tournaments",
+            "3": "display tournament details (name and dates)",
+            "4": "display players of a tournament (alphabetically)",
+            "5": "display all rounds and matches of a tournament",
+            "0": "return to main menu"
+        }
+        return self.display_menu("Reports Menu", options)
 
     def tournament_edit_menu(self):
-        print("\n<<<Tournament Edit Menu>>>")
-        print("Enter 1 to show tournament informations and players")
-        print("Enter 2 to edit tournament informations")
-        print("Enter 3 to add players to the tournament")
-        print("Enter 4 to remove players from the tournament")
-        print("Enter 0 to return to the tournament menu")
-        return input("Enter your choice : ")
+        options = {
+            "1": "display tournament information and players",
+            "2": "edit tournament information",
+            "3": "add players to the tournament",
+            "4": "remove players from the tournament",
+            "0": "return to tournament menu"
+        }
+        return self.display_menu("Tournament Edit Menu", options)
 
     def prompt_for_add_tournament_players(self):
         print("\n<<<Add players to the tournament>>>")
