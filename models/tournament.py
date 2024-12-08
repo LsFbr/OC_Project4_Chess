@@ -1,5 +1,6 @@
 from .round import Round
 from .match import Match
+from .player import Player
 
 from datetime import datetime
 import random
@@ -19,17 +20,19 @@ class Tournament:
             current_round_number=0,
             rounds=None,
             start_date=None,
-            end_date=None
+            end_date=None,
+            doc_id=None
     ):
         self.name = name
         self.location = location
         self.description = description
-        self.players = players
+        self.players = [Player(**player) if isinstance(player, dict) else player for player in players]
         self.number_of_rounds = number_of_rounds
         self.current_round_number = current_round_number
         self.rounds = rounds if rounds else []
         self.start_date = start_date
         self.end_date = end_date
+        self.doc_id = doc_id
 
     def serialize(self):
         return {

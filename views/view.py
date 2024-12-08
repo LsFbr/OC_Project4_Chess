@@ -84,19 +84,14 @@ class View:
     def show_tournament_infos(self, tournament):
         table = PrettyTable()
         table.title = "<<<Tournament Informations>>>"
-        table.field_names = [
-            "Name", "Location", "Description", "Current Round", "Players"
-        ]
+        table.field_names = ["Name", "Location", "Description", "Current Round", "Players"]
 
         table.add_row([
-            tournament["name"],
-            tournament["location"],
-            tournament["description"],
-            (
-                f"{tournament['current_round_number']}/"
-                f"{tournament['number_of_rounds']}"
-            ),
-            len(tournament["players"])
+            tournament.name,
+            tournament.location,
+            tournament.description,
+            f"{tournament.current_round_number}/{tournament.number_of_rounds}",
+            len(tournament.players)
         ])
 
         print(f"\n{table}")
@@ -107,14 +102,9 @@ class View:
         table.field_names = ["Name", "Start Date", "End Date"]
 
         table.add_row([
-            tournament["name"],
-            format_date(tournament["start_date"])
-            if tournament["start_date"]
-            else "Not started yet",
-
-            format_date(tournament["end_date"])
-            if tournament["end_date"]
-            else "Not finished yet"
+            tournament.name,
+            format_date(tournament.start_date) if tournament.start_date else "Not started yet",
+            format_date(tournament.end_date) if tournament.end_date else "Not finished yet"
         ])
 
         print(f"\n{table}")
@@ -126,35 +116,18 @@ class View:
 
         table = PrettyTable()
         table.title = "<<<Tournaments List>>>"
-        table.field_names = [
-            "ID",
-            "Name",
-            "Location",
-            "Description",
-            "Current Round",
-            "Players",
-            "Start Date",
-            "End Date"
-        ]
+        table.field_names = ["ID", "Name", "Location", "Description", "Current Round", "Players", "Start Date", "End Date"]
 
-        for tournament in tournaments:
+        for tournament, doc_id in tournaments:
             table.add_row([
-                tournament.doc_id,
-                tournament["name"],
-                tournament["location"],
-                tournament["description"],
-                (
-                    f"{tournament['current_round_number']}/"
-                    f"{tournament['number_of_rounds']}"
-                ),
-                len(tournament["players"]),
-                format_date(tournament["start_date"])
-                if tournament["start_date"]
-                else "Not started yet",
-
-                format_date(tournament["end_date"])
-                if tournament["end_date"]
-                else "Not finished yet"
+                doc_id,
+                tournament.name,
+                tournament.location,
+                tournament.description,
+                f"{tournament.current_round_number}/{tournament.number_of_rounds}",
+                len(tournament.players),
+                format_date(tournament.start_date) if tournament.start_date else "Not started yet",
+                format_date(tournament.end_date) if tournament.end_date else "Not finished yet"
             ])
 
         print(f"\n{table}")
@@ -197,18 +170,13 @@ class View:
     def show_player(self, player):
         table = PrettyTable()
         table.title = "<<<Player Information>>>"
-        table.field_names = [
-            "Name",
-            "Surname",
-            "Birthday",
-            "National Chess ID"
-        ]
+        table.field_names = ["Name", "Surname", "Birthday", "National Chess ID"]
 
         table.add_row([
-            player['name'],
-            player['surname'],
-            player['birthday'],
-            player['national_chess_id']
+            player.name,
+            player.surname,
+            player.birthday,
+            player.national_chess_id
         ])
 
         print(f"\n{table}")
@@ -220,17 +188,15 @@ class View:
 
         table = PrettyTable()
         table.title = "<<<Tournament's Players>>>"
-        table.field_names = [
-            "National Chess ID", "Name", "Surname", "Birthday", "Score"
-        ]
+        table.field_names = ["National Chess ID", "Name", "Surname", "Birthday", "Score"]
 
         for player in players:
             table.add_row([
-                player["national_chess_id"],
-                player["name"],
-                player["surname"],
-                player["birthday"],
-                player["score"]
+                player.national_chess_id,
+                player.name,
+                player.surname,
+                player.birthday,
+                player.score
             ])
 
         print(f"\n{table}")
@@ -286,16 +252,14 @@ class View:
 
         table = PrettyTable()
         table.title = "<<<Registered Players>>>"
-        table.field_names = [
-            "National Chess ID", "Name", "Surname", "Birthday"
-        ]
+        table.field_names = ["National Chess ID", "Name", "Surname", "Birthday"]
 
         for player in players:
             table.add_row([
-                player["national_chess_id"],
-                player["name"],
-                player["surname"],
-                player["birthday"]
+                player.national_chess_id,
+                player.name,
+                player.surname,
+                player.birthday
             ])
 
         print(f"\n{table}")
@@ -347,22 +311,12 @@ class View:
         ])
         print(f"\n{table}")
 
-    def show_all_rounds(self, tournament, args):
-        """
-        Display all the rounds of a tournament
-        args: list of rounds
-        """
+    def show_all_rounds(self, tournament, rounds):
         table = PrettyTable()
-        table.title = (
-            f"<<<{tournament['name']} - "
-            "Rounds List - "
-            f"{tournament["current_round_number"]}/"
-            f"{tournament["number_of_rounds"]}>>>"
-        )
+        table.title = f"<<<{tournament.name} - Rounds List - {tournament.current_round_number}/{tournament.number_of_rounds}>>>"
         table.field_names = ["Round", "Dates", "Matches"]
 
-        for round_instance in args:
-            # Create a table for the matches of the round
+        for round_instance in rounds:
             matches_table = PrettyTable()
             matches_table.field_names = ["Player 1", "Score", "Player 2"]
             matches_table.align["Player 1"] = "r"
@@ -370,24 +324,16 @@ class View:
             matches_table.align["Player 2"] = "l"
             for match in round_instance.matches:
                 matches_table.add_row([
-                    f"({match.player_1.national_chess_id}) "
-                    f"{match.player_1.name} {match.player_1.surname}",
-                    f"{match.player_1_match_score} |"
-                    f" {match.player_2_match_score}",
-                    f"{match.player_2.name} {match.player_2.surname} "
-                    f"({match.player_2.national_chess_id})"
+                    f"({match.player_1.national_chess_id}) {match.player_1.name} {match.player_1.surname}",
+                    f"{match.player_1_match_score} | {match.player_2_match_score}",
+                    f"{match.player_2.name} {match.player_2.surname} ({match.player_2.national_chess_id})"
                 ])
 
-            # Convert the matches table to a string
             matches_str = matches_table.get_string()
 
-            # Add the round to the main table
             table.add_row([
                 round_instance.round_name,
-                (
-                    f"Started: {format_date(str(round_instance.start_date))}\n"
-                    f"Ended: {format_date(str(round_instance.end_date))}"
-                ),
+                f"Started: {format_date(str(round_instance.start_date))}\nEnded: {format_date(str(round_instance.end_date))}",
                 matches_str,
             ])
             table.add_row([
@@ -433,9 +379,9 @@ class View:
         )
         return input("Your choice : ").lower()
 
-    def prompt_for_start_round(self, round):
+    def prompt_for_start_round(self, round_instance):
         print(
-            f"Are you ready to start {round.round_name}?\n"
+            f"Are you ready to start {round_instance.round_name}?\n"
             "Enter 'y' to continue or 'n' to return to tournaments menu"
         )
         return input("Your choice : ").lower()

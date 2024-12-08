@@ -60,7 +60,9 @@ class Controller:
             elif choice == "2":
                 self.create_tournament()
             elif choice == "3":
-                self.edit_tournament()
+                tournament, tournament_id = self.select_tournament()
+                if tournament:
+                    self.tournament_edit_menu(tournament, tournament_id)
             elif choice == "4":
                 self.start_tournament()
             elif choice == "0":
@@ -93,7 +95,7 @@ class Controller:
             choice = self.view.tournament_edit_menu()
             if choice == "1":
                 self.view.show_tournament_infos(tournament)
-                self.view.show_all_tournament_players(tournament["players"])
+                self.view.show_all_tournament_players(tournament.players)
             elif choice == "2":
                 self.edit_tournament_infos(tournament, tournament_id)
             elif choice == "3":
@@ -115,56 +117,24 @@ class Controller:
         tournament, _ = self.select_tournament()
         if tournament:
             sorted_tournament = self.db_sort_tournament_players(tournament)
-            self.view.show_all_tournament_players(sorted_tournament["players"])
+            self.view.show_all_tournament_players(sorted_tournament.players)
 
     def report_tournament_rounds_and_matches(self):
         tournament, tournament_id = self.select_tournament()
-        if tournament and "rounds" in tournament:
-            rounds = []
-            for round_data in tournament["rounds"]:
-                round_instance = Round(
-                    round_name=round_data["round_name"],
-                    matches=[],
-                    start_date=round_data.get("start_date"),
-                    end_date=round_data.get("end_date")
-                )
-
-                for match_data in round_data["matches"]:
-                    player_1_data, player_1_match_score = match_data[0]
-                    player_2_data, player_2_match_score = match_data[1]
-
-                    player_1 = Player(
-                        player_1_data["name"],
-                        player_1_data["surname"],
-                        player_1_data["birthday"],
-                        player_1_data["national_chess_id"]
-                    )
-                    player_2 = Player(
-                        player_2_data["name"],
-                        player_2_data["surname"],
-                        player_2_data["birthday"],
-                        player_2_data["national_chess_id"]
-                    )
-
-                    match = Match(
-                        player_1,
-                        player_2,
-                        player_1_match_score,
-                        player_2_match_score)
-                    round_instance.matches.append(match)
-                rounds.append(round_instance)
-            self.view.show_all_rounds(tournament, rounds)
+        if tournament and tournament.rounds:
+            self.view.show_all_rounds(tournament, tournament.rounds)
 
     def db_show_all_players(self):
         self.db_sort_players_alphabetically()
 
         players_table = db.table("players")
-        players = players_table.all()
+        players_data = players_table.all()
 
-        if not players:
+        if not players_data:
             self.view.print("No players available.")
             return
 
+        players = [Player(**player) for player in players_data]
         self.view.show_all_players(players)
 
     def db_add_players(self):
@@ -189,7 +159,6 @@ class Controller:
                 return
 
     def db_edit_player(self):
-
         self.db_show_all_players()
 
         self.view.print(
@@ -198,32 +167,32 @@ class Controller:
         national_chess_id = self.view.prompt_for_chess_id()
 
         players_table = db.table("players")
-        player = players_table.get(
+        player_data = players_table.get(
             Query().national_chess_id == national_chess_id
         )
 
-        if not player:
+        if not player_data:
             self.view.print("\nPlayer not found.\n")
             return
+
+        # Convert the player data to a Player instance
+        player = Player(**player_data)
 
         self.view.show_player(player)
         new_name, new_surname, new_birthday, new_national_chess_id = (
             self.view.prompt_for_edit_player()
         )
 
-        player["name"] = new_name if new_name else player["name"]
-        player["surname"] = new_surname if new_surname else player["surname"]
-        player["birthday"] = (
-            new_birthday if new_birthday
-            else player["birthday"]
-        )
-        player["national_chess_id"] = (
-            new_national_chess_id if new_national_chess_id
-            else player["national_chess_id"]
+        player.name = new_name if new_name else player.name
+        player.surname = new_surname if new_surname else player.surname
+        player.birthday = new_birthday if new_birthday else player.birthday
+        player.national_chess_id = (
+            new_national_chess_id if new_national_chess_id else player.national_chess_id
         )
 
+        # Update the player in the database using serialize()
         players_table.update(
-            player, Query().national_chess_id == national_chess_id
+            player.serialize(), Query().national_chess_id == national_chess_id
         )
 
         self.view.print("\nPlayer successfully updated.\n")
@@ -231,20 +200,20 @@ class Controller:
     def db_sort_tournament_players(self, tournament):
         """
         Sort players in a tournament by name (ascending).
-         return: the updated tournament
+        return: the updated tournament
         """
-        if "players" not in tournament or not tournament["players"]:
+        if not tournament.players:
             self.view.print("\nNo players available in this tournament.\n")
             return tournament
 
         sorted_players = sorted(
-            tournament["players"],
-            key=lambda x: (
-                x["name"].lower(), x["surname"].lower()
+            tournament.players,
+            key=lambda player: (
+                player.name.lower(), player.surname.lower()
             )
         )
 
-        tournament["players"] = sorted_players
+        tournament.players = sorted_players
 
         return tournament
 
@@ -272,16 +241,19 @@ class Controller:
 
     def db_show_all_tournaments(self):
         tournaments_table = db.table("tournaments")
-        tournaments = tournaments_table.all()
+        tournaments_data = tournaments_table.all()
 
-        if not tournaments:
+        if not tournaments_data:
             self.view.print("No tournaments available.")
             return
 
+        tournaments = [
+            (Tournament(**tournament), tournament.doc_id)
+            for tournament in tournaments_data
+        ]
         self.view.show_all_tournaments(tournaments)
 
     def create_tournament(self):
-
         # Create a new tournament
         (name, location, description, number_of_rounds) = (
             self.view.prompt_for_tournament()
@@ -292,13 +264,12 @@ class Controller:
         else:
             number_of_rounds = int(number_of_rounds)
 
-        self.tournament = Tournament(
-            name, location, description, [], number_of_rounds
-        )
-
         # Add players to the tournament
         players_table = db.table("players")
-        players = players_table.all()
+        players_data = players_table.all()
+
+        # Convert player data to Player instances
+        players = [Player(**player) for player in players_data]
 
         self.view.show_all_players(players)
 
@@ -326,8 +297,11 @@ class Controller:
                     f"\nPlayer with National Chess ID {chess_id} not found.\n"
                 )
 
-        self.tournament.players = selected_players
+        self.tournament = Tournament(
+            name, location, description, selected_players, number_of_rounds
+        )
 
+        self.tournament = self.db_sort_tournament_players(self.tournament)
         # Save the tournament in the database
         tournaments_table = db.table("tournaments")
         tournaments_table.insert(self.tournament.serialize())
@@ -336,21 +310,19 @@ class Controller:
         self.view.print("\nTournament saved.\n")
 
     def add_tournament_players(self, tournament, tournament_id):
-        self.view.show_all_tournament_players(tournament["players"])
+        self.view.show_all_tournament_players(tournament.players)
 
         players_table = db.table("players")
-        players = players_table.all()
+        players_data = players_table.all()
 
-        self.view.show_all_players(players)
+        self.view.show_all_players([Player(**player) for player in players_data])
 
         national_chess_ids = self.view.prompt_for_add_tournament_players()
         national_chess_ids_list = [
             chess_id.strip() for chess_id in national_chess_ids.split(",")
         ]
 
-        existing_ids = {
-            player["national_chess_id"] for player in tournament["players"]
-        }
+        existing_ids = {player.national_chess_id for player in tournament.players}
 
         # Create a list of Player objects from the selected players
         selected_players = []
@@ -366,38 +338,32 @@ class Controller:
                 Query().national_chess_id == chess_id
             )
             if player_data:
-                player = {
-                    "name": player_data["name"],
-                    "surname": player_data["surname"],
-                    "birthday": player_data["birthday"],
-                    "national_chess_id": player_data["national_chess_id"],
-                    "score": 0.0
-                    }
+                player = Player(**player_data)
 
-                if player not in tournament["players"]:
+                if player not in tournament.players:
                     selected_players.append(player)
                     self.view.print(
                         f"Added {chess_id} "
-                        f"{player['name']} {player['surname']}."
+                        f"{player.name} {player.surname}."
                     )
             else:
                 self.view.print(
                     f"Player with National Chess ID {chess_id} not found."
                 )
 
-        tournament["players"].extend(selected_players)
+        tournament.players.extend(selected_players)
 
         tournament = self.db_sort_tournament_players(tournament)
 
         tournaments_table = db.table("tournaments")
         tournaments_table.update(
-            tournament, doc_ids=[tournament_id]
+            tournament.serialize(), doc_ids=[tournament_id]
         )
 
         self.view.print("\nTournament successfully updated.")
 
     def remove_tournament_players(self, tournament, tournament_id):
-        self.view.show_all_tournament_players(tournament["players"])
+        self.view.show_all_tournament_players(tournament.players)
 
         national_chess_ids = self.view.prompt_for_remove_tournament_players()
         national_chess_ids_list = [
@@ -408,8 +374,8 @@ class Controller:
         for chess_id in national_chess_ids_list:
             player = next(
                 (
-                    player for player in tournament["players"]
-                    if player["national_chess_id"] == chess_id
+                    player for player in tournament.players
+                    if player.national_chess_id == chess_id
                 ),
                 None
             )
@@ -422,27 +388,31 @@ class Controller:
                 )
 
         for player in selected_players:
-            tournament["players"].remove(player)
+            tournament.players.remove(player)
             self.view.print(
-                f"Removed {chess_id} "
-                f"{player['name']} {player['surname']}."
+                f"Removed {player.national_chess_id} "
+                f"{player.name} {player.surname}."
             )
 
         tournaments_table = db.table("tournaments")
         tournaments_table.update(
-            tournament, doc_ids=[tournament_id]
+            tournament.serialize(), doc_ids=[tournament_id]
         )
 
         self.view.print("Tournament successfully updated.")
 
     def edit_tournament(self):
         tournaments_table = db.table("tournaments")
-        tournaments = tournaments_table.all()
+        tournaments_data = tournaments_table.all()
 
-        if not tournaments:
+        if not tournaments_data:
             self.view.print("No tournaments available.")
             return
 
+        tournaments = [
+            (Tournament(**tournament), tournament.doc_id)
+            for tournament in tournaments_data
+        ]
         self.view.show_all_tournaments(tournaments)
 
         self.view.print(
@@ -451,11 +421,13 @@ class Controller:
 
         tournament_id = int(self.view.prompt_for_tournament_id())
 
-        tournament = tournaments_table.get(doc_id=tournament_id)
+        tournament_data = tournaments_table.get(doc_id=tournament_id)
 
-        if not tournament:
+        if not tournament_data:
             self.view.print("\nTournament not found.\n")
             return
+
+        tournament = Tournament(**tournament_data)
         self.view.show_tournament_infos(tournament)
         self.tournament_edit_menu(tournament, tournament_id)
 
@@ -466,33 +438,32 @@ class Controller:
             self.view.prompt_for_edit_tournament_infos()
         )
 
-        tournament["name"] = new_name if new_name else tournament["name"]
-        tournament["location"] = (
-            new_location if new_location else tournament["location"]
-        )
-        tournament["description"] = (
-            new_description if new_description else tournament["description"]
-        )
-        tournament["number_of_rounds"] = (
-            new_number_of_rounds if new_number_of_rounds
-            else tournament["number_of_rounds"]
+        tournament.name = new_name if new_name else tournament.name
+        tournament.location = new_location if new_location else tournament.location
+        tournament.description = new_description if new_description else tournament.description
+        tournament.number_of_rounds = (
+            int(new_number_of_rounds) if new_number_of_rounds else tournament.number_of_rounds
         )
 
         tournaments_table = db.table("tournaments")
         tournaments_table.update(
-            tournament, doc_ids=[tournament_id]
+            tournament.serialize(), doc_ids=[tournament_id]
         )
 
         self.view.print("\nTournament successfully updated.\n")
 
     def select_tournament(self):
         tournaments_table = db.table("tournaments")
-        tournaments = tournaments_table.all()
+        tournaments_data = tournaments_table.all()
 
-        if not tournaments:
+        if not tournaments_data:
             self.view.print("No tournaments available.")
-            return
+            return None, None
 
+        tournaments = [
+            (Tournament(**tournament), tournament.doc_id)
+            for tournament in tournaments_data
+        ]
         self.view.show_all_tournaments(tournaments)
 
         self.view.print(
@@ -501,12 +472,53 @@ class Controller:
 
         tournament_id = int(self.view.prompt_for_tournament_id())
 
-        tournament = tournaments_table.get(doc_id=tournament_id)
+        tournament_data = tournaments_table.get(doc_id=tournament_id)
 
-        if not tournament:
+        if not tournament_data:
             self.view.print("\nTournament not found.\n")
-            return
+            return None, None
 
+        # Convert players to Player instances
+        players = [Player(**player_data) for player_data in tournament_data["players"]]
+
+        # Convert rounds to Round instances, and matches to Match instances
+        rounds = []
+        for round_data in tournament_data["rounds"]:
+            matches = []
+            for match_data in round_data["matches"]:
+                player_1_data, player_1_match_score = match_data[0]
+                player_2_data, player_2_match_score = match_data[1]
+
+                player_1 = Player(**player_1_data)
+                player_2 = Player(**player_2_data)
+
+                match = Match(player_1, player_2, player_1_match_score, player_2_match_score)
+                matches.append(match)
+
+            # Convert start_date and end_date to datetime objects
+            start_date = datetime.fromisoformat(round_data["start_date"]) if round_data.get("start_date") else None
+            end_date = datetime.fromisoformat(round_data["end_date"]) if round_data.get("end_date") else None
+
+            round_instance = Round(
+                round_name=round_data["round_name"],
+                matches=matches,
+                start_date=start_date,
+                end_date=end_date
+            )
+            rounds.append(round_instance)
+
+        tournament = Tournament(
+            name=tournament_data["name"],
+            location=tournament_data["location"],
+            description=tournament_data["description"],
+            players=players,
+            number_of_rounds=tournament_data["number_of_rounds"],
+            current_round_number=tournament_data["current_round_number"],
+            rounds=rounds,
+            start_date=datetime.fromisoformat(tournament_data["start_date"]) if tournament_data.get("start_date") else None,
+            end_date=datetime.fromisoformat(tournament_data["end_date"]) if tournament_data.get("end_date") else None,
+            doc_id=tournament_id
+        )
         return tournament, tournament_id
 
     def start_tournament(self):
@@ -515,103 +527,25 @@ class Controller:
         self.run_tournament(tournament)
 
     def run_tournament(self, tournament):
-        # Create a Tournament object from the selected tournament
-        players = []
-        for player_data in tournament["players"]:
-            player = Player(
-                player_data["name"],
-                player_data["surname"],
-                player_data["birthday"],
-                player_data["national_chess_id"],
-                player_data["score"]
-            )
-            players.append(player)
+        self.view.print(tournament)
 
-        rounds = []
-        if tournament["rounds"]:
-            for round_data in tournament["rounds"]:
-                matches = []
-                for match_data in round_data["matches"]:
-                    player_1_data, player_1_match_score = match_data[0]
-                    player_2_data, player_2_match_score = match_data[1]
+        if not tournament.start_date:
+            tournament.set_start_date()
 
-                    player_1 = Player(
-                        player_1_data["name"],
-                        player_1_data["surname"],
-                        player_1_data["birthday"],
-                        player_1_data["national_chess_id"]
-                    )
-                    player_2 = Player(
-                        player_2_data["name"],
-                        player_2_data["surname"],
-                        player_2_data["birthday"],
-                        player_2_data["national_chess_id"]
-                    )
-
-                    match = Match(
-                        player_1,
-                        player_2,
-                        player_1_match_score,
-                        player_2_match_score
-                    )
-                    matches.append(match)
-
-                round_instance = Round(
-                    round_name=round_data["round_name"],
-                    matches=matches,
-                    start_date=(
-                        datetime.fromisoformat(round_data["start_date"])
-                        if round_data.get("start_date")
-                        else None
-                    ),
-                    end_date=(
-                        datetime.fromisoformat(round_data["end_date"])
-                        if round_data.get("end_date")
-                        else None
-                    )
-                )
-                rounds.append(round_instance)
-
-        self.tournament = Tournament(
-            tournament["name"],
-            tournament["location"],
-            tournament["description"],
-            players,
-            tournament["number_of_rounds"],
-            tournament["current_round_number"],
-            rounds,
-            start_date=(
-                datetime.fromisoformat(tournament["start_date"])
-                if tournament["start_date"]
-                else None
-            ),
-            end_date=(
-                datetime.fromisoformat(tournament["end_date"])
-                if tournament["end_date"]
-                else None
-            )
-
-        )
-
-        self.view.print(self.tournament)
-
-        if not self.tournament.start_date:
-            self.tournament.set_start_date()
-
-        if self.tournament.end_date:
+        if tournament.end_date:
             self.view.print("Tournament already ended.")
-            ranked_players = self.tournament.get_ranked_players()
-            self.view.show_tournament_results(self.tournament, ranked_players)
+            ranked_players = tournament.get_ranked_players()
+            self.view.show_tournament_results(tournament, ranked_players)
             return
 
         while True:
             # Prompt the user to create a new round
-            round_number = int(self.tournament.current_round_number) + 1
+            round_number = int(tournament.current_round_number) + 1
 
             while True:
                 choice = self.view.prompt_for_create_round(round_number)
                 if choice == "y":
-                    round_instance = self.tournament.create_round()
+                    round_instance = tournament.create_round()
                     break
                 elif choice == "n":
                     self.view.print(
@@ -629,7 +563,7 @@ class Controller:
             while True:
                 choice = self.view.prompt_for_start_round(round_instance)
                 if choice == "y":
-                    self.tournament.start_current_round()
+                    tournament.start_current_round()
                     break
                 elif choice == "n":
                     self.view.print(
@@ -650,22 +584,22 @@ class Controller:
                 # Ajouter vérif
                 match.set_result(choice)
 
-            round_instance.set_end_date()
+            round_instance.end_round()
 
             self.view.show_round_results(round_instance)
 
-            ranked_players = self.tournament.get_ranked_players()
+            ranked_players = tournament.get_ranked_players()
 
-            if (self.tournament.current_round_number ==
-                    self.tournament.number_of_rounds):
+            if (tournament.current_round_number ==
+                    tournament.number_of_rounds):
 
-                self.tournament.set_end_date()
+                tournament.set_end_date()
                 self.view.print("Tournament ended !!!")
                 self.view.show_tournament_results(
-                    self.tournament, ranked_players
+                    tournament, ranked_players
                 )
-                self.tournament.save_tournament()
+                tournament.save_tournament()
                 return
 
             self.view.show_ranked_players(ranked_players)
-            self.tournament.save_tournament()
+            tournament.save_tournament()

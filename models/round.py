@@ -18,26 +18,15 @@ class Round:
     def serialize(self):
         return {
             "round_name": self.round_name,
-            "start_date": (
-                self.start_date.isoformat()
-                if self.start_date
-                else None
-            ),
-            "end_date": (
-                self.end_date.isoformat()
-                if self.end_date
-                else None
-            ),
-            "matches": [match.serialize() for match in self.matches]
+            "matches": [match.serialize() for match in self.matches],
+            "start_date": self.start_date.isoformat() if self.start_date else None,
+            "end_date": self.end_date.isoformat() if self.end_date else None
         }
 
     def start_round(self):
-        self.set_start_date()
-
-    def set_start_date(self):
         self.start_date = datetime.now()
 
-    def set_end_date(self):
+    def end_round(self):
         self.end_date = datetime.now()
 
     def __repr__(self):
