@@ -33,6 +33,9 @@ class Controller:
             elif choice == "0":
                 self.view.print("\nGoodbye!\n")
                 return
+            else:
+                self.view.print("\nInvalid choice! Please try again.")
+                continue
 
     def players_menu(self):
         while True:
@@ -45,6 +48,9 @@ class Controller:
                 self.db_edit_player()
             elif choice == "0":
                 return
+            else:
+                self.view.print("\nInvalid choice! Please try again.")
+                continue
 
     def tournaments_menu(self):
         while True:
@@ -59,6 +65,9 @@ class Controller:
                 self.start_tournament()
             elif choice == "0":
                 return
+            else:
+                self.view.print("\nInvalid choice! Please try again.")
+                continue
 
     def reports_menu(self):
         while True:
@@ -75,6 +84,9 @@ class Controller:
                 self.report_tournament_rounds_and_matches()
             elif choice == "0":
                 return
+            else:
+                self.view.print("\nInvalid choice! Please try again.")
+                continue
 
     def tournament_edit_menu(self, tournament, tournament_id):
         while True:
@@ -82,14 +94,17 @@ class Controller:
             if choice == "1":
                 self.view.show_tournament_infos(tournament)
                 self.view.show_all_tournament_players(tournament["players"])
-            if choice == "2":
+            elif choice == "2":
                 self.edit_tournament_infos(tournament, tournament_id)
-            if choice == "3":
+            elif choice == "3":
                 self.add_tournament_players(tournament, tournament_id)
-            if choice == "4":
+            elif choice == "4":
                 self.remove_tournament_players(tournament, tournament_id)
             elif choice == "0":
                 return
+            else:
+                self.view.print("\nInvalid choice! Please try again.")
+                continue
 
     def report_tournament_details(self):
         tournament, _ = self.select_tournament()
@@ -115,8 +130,8 @@ class Controller:
                 )
 
                 for match_data in round_data["matches"]:
-                    player_1_data, player_1_score = match_data[0]
-                    player_2_data, player_2_score = match_data[1]
+                    player_1_data, player_1_match_score = match_data[0]
+                    player_2_data, player_2_match_score = match_data[1]
 
                     player_1 = Player(
                         player_1_data["name"],
@@ -134,8 +149,8 @@ class Controller:
                     match = Match(
                         player_1,
                         player_2,
-                        player_1_score,
-                        player_2_score)
+                        player_1_match_score,
+                        player_2_match_score)
                     round_instance.matches.append(match)
                 rounds.append(round_instance)
             self.view.show_all_rounds(tournament, rounds)
@@ -517,8 +532,8 @@ class Controller:
             for round_data in tournament["rounds"]:
                 matches = []
                 for match_data in round_data["matches"]:
-                    player_1_data, player_1_score = match_data[0]
-                    player_2_data, player_2_score = match_data[1]
+                    player_1_data, player_1_match_score = match_data[0]
+                    player_2_data, player_2_match_score = match_data[1]
 
                     player_1 = Player(
                         player_1_data["name"],
@@ -536,8 +551,8 @@ class Controller:
                     match = Match(
                         player_1,
                         player_2,
-                        player_1_score,
-                        player_2_score
+                        player_1_match_score,
+                        player_2_match_score
                     )
                     matches.append(match)
 
@@ -593,22 +608,38 @@ class Controller:
             # Prompt the user to create a new round
             round_number = int(self.tournament.current_round_number) + 1
 
-            choice = self.view.prompt_for_create_round(round_number)
-            if not choice:
-                round_instance = self.tournament.create_round()
-            if choice == "n":
-                self.view.print("Round creation cancelled.")
-                return
+            while True:
+                choice = self.view.prompt_for_create_round(round_number)
+                if choice == "y":
+                    round_instance = self.tournament.create_round()
+                    break
+                elif choice == "n":
+                    self.view.print(
+                        "Round creation cancelled.\n"
+                        "Back to Tournaments Menu..."
+                    )
+                    return
+                else:
+                    self.view.print("\nInvalid choice! Please try again.")
+                    continue
 
             self.view.show_round_matches(round_instance)
 
             # Prompt the user to start the round
-            choice = self.view.prompt_for_start_round(round_instance)
-            if not choice:
-                self.tournament.start_current_round()
-            if choice == "n":
-                self.view.print("Round start cancelled.")
-                return
+            while True:
+                choice = self.view.prompt_for_start_round(round_instance)
+                if choice == "y":
+                    self.tournament.start_current_round()
+                    break
+                elif choice == "n":
+                    self.view.print(
+                        "Round start cancelled.\n"
+                        "Back to Tournaments Menu..."
+                    )
+                    return
+                else:
+                    self.view.print("\nInvalid choice! Please try again.")
+                    continue
 
             self.view.print(f"{round_instance.round_name} started !!!")
 
@@ -616,6 +647,7 @@ class Controller:
             for match in round_instance.matches:
                 self.view.show_match(match)
                 choice = self.view.prompt_for_match_result()
+                # Ajouter vérif
                 match.set_result(choice)
 
             round_instance.set_end_date()

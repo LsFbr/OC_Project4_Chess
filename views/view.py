@@ -330,7 +330,7 @@ class View:
         for match in round_instance.matches:
             table.add_row([
                 f"{match.player_1.name} {match.player_1.surname}",
-                f"{match.player_1_score}|{match.player_2_score}",
+                f"{match.player_1_match_score}|{match.player_2_match_score}",
                 f"{match.player_2.name} {match.player_2.surname}"
             ])
         print(f"\n{table}")
@@ -372,7 +372,8 @@ class View:
                 matches_table.add_row([
                     f"({match.player_1.national_chess_id}) "
                     f"{match.player_1.name} {match.player_1.surname}",
-                    f"{match.player_1_score} | {match.player_2_score}",
+                    f"{match.player_1_match_score} |"
+                    f" {match.player_2_match_score}",
                     f"{match.player_2.name} {match.player_2.surname} "
                     f"({match.player_2.national_chess_id})"
                 ])
@@ -387,7 +388,13 @@ class View:
                     f"Started: {format_date(str(round_instance.start_date))}\n"
                     f"Ended: {format_date(str(round_instance.end_date))}"
                 ),
-                matches_str
+                matches_str,
+            ])
+            table.add_row([
+                "---------",
+                "------------------------------",
+                "-------------------------------------------------------------"
+                "--------"
             ])
 
         print(f"\n{table}")
@@ -400,7 +407,7 @@ class View:
         for match in round_instance.matches:
             table.add_row([
                 f"{match.player_1.name} {match.player_1.surname}",
-                f"{match.player_1_score}|{match.player_2_score}",
+                f"{match.player_1_match_score}|{match.player_2_match_score}",
                 f"{match.player_2.name} {match.player_2.surname}"
             ])
         print(f"\n{table}")
@@ -421,19 +428,17 @@ class View:
 
     def prompt_for_create_round(self, round_number):
         print(
-            f"\nAre you ready to create matches for Round {round_number} ?\n"
-            "Press Enter to continue "
-            "or enter 'n' to return to tournaments menu"
+            f"\nAre you ready to create matches for Round {round_number}?\n"
+            "Enter 'y' to continue or 'n' to return to tournaments menu"
         )
-        return input("Your choice : ")
+        return input("Your choice : ").lower()
 
     def prompt_for_start_round(self, round):
         print(
             f"Are you ready to start {round.round_name}?\n"
-            "Press Enter to continue "
-            "or enter 'n' to return to tournaments menu"
+            "Enter 'y' to continue or 'n' to return to tournaments menu"
         )
-        return input("Your choice : ")
+        return input("Your choice : ").lower()
 
     def print(self, data):
         print(f"\n{data}")
