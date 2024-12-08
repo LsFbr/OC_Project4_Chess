@@ -26,7 +26,10 @@ class Tournament:
         self.name = name
         self.location = location
         self.description = description
-        self.players = [Player(**player) if isinstance(player, dict) else player for player in players]
+        self.players = [
+            Player(**player) if isinstance(player, dict) else player
+            for player in players
+        ]
         self.number_of_rounds = number_of_rounds
         self.current_round_number = current_round_number
         self.rounds = rounds if rounds else []

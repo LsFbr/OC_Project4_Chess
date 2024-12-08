@@ -187,7 +187,9 @@ class Controller:
         player.surname = new_surname if new_surname else player.surname
         player.birthday = new_birthday if new_birthday else player.birthday
         player.national_chess_id = (
-            new_national_chess_id if new_national_chess_id else player.national_chess_id
+            new_national_chess_id
+            if new_national_chess_id
+            else player.national_chess_id
         )
 
         # Update the player in the database using serialize()
@@ -315,14 +317,18 @@ class Controller:
         players_table = db.table("players")
         players_data = players_table.all()
 
-        self.view.show_all_players([Player(**player) for player in players_data])
+        self.view.show_all_players(
+            [Player(**player) for player in players_data]
+        )
 
         national_chess_ids = self.view.prompt_for_add_tournament_players()
         national_chess_ids_list = [
             chess_id.strip() for chess_id in national_chess_ids.split(",")
         ]
 
-        existing_ids = {player.national_chess_id for player in tournament.players}
+        existing_ids = {
+            player.national_chess_id for player in tournament.players
+        }
 
         # Create a list of Player objects from the selected players
         selected_players = []
@@ -439,10 +445,15 @@ class Controller:
         )
 
         tournament.name = new_name if new_name else tournament.name
-        tournament.location = new_location if new_location else tournament.location
-        tournament.description = new_description if new_description else tournament.description
+        tournament.location = (
+            new_location if new_location else tournament.location
+        )
+        tournament.description = (
+            new_description if new_description else tournament.description
+        )
         tournament.number_of_rounds = (
-            int(new_number_of_rounds) if new_number_of_rounds else tournament.number_of_rounds
+            int(new_number_of_rounds) if new_number_of_rounds
+            else tournament.number_of_rounds
         )
 
         tournaments_table = db.table("tournaments")
@@ -479,7 +490,9 @@ class Controller:
             return None, None
 
         # Convert players to Player instances
-        players = [Player(**player_data) for player_data in tournament_data["players"]]
+        players = [
+            Player(**player_data) for player_data in tournament_data["players"]
+        ]
 
         # Convert rounds to Round instances, and matches to Match instances
         rounds = []
@@ -492,12 +505,25 @@ class Controller:
                 player_1 = Player(**player_1_data)
                 player_2 = Player(**player_2_data)
 
-                match = Match(player_1, player_2, player_1_match_score, player_2_match_score)
+                match = Match(
+                    player_1,
+                    player_2,
+                    player_1_match_score,
+                    player_2_match_score
+                )
                 matches.append(match)
 
             # Convert start_date and end_date to datetime objects
-            start_date = datetime.fromisoformat(round_data["start_date"]) if round_data.get("start_date") else None
-            end_date = datetime.fromisoformat(round_data["end_date"]) if round_data.get("end_date") else None
+            start_date = (
+                datetime.fromisoformat(round_data["start_date"])
+                if round_data.get("start_date")
+                else None
+            )
+            end_date = (
+                datetime.fromisoformat(round_data["end_date"])
+                if round_data.get("end_date")
+                else None
+            )
 
             round_instance = Round(
                 round_name=round_data["round_name"],
@@ -515,8 +541,16 @@ class Controller:
             number_of_rounds=tournament_data["number_of_rounds"],
             current_round_number=tournament_data["current_round_number"],
             rounds=rounds,
-            start_date=datetime.fromisoformat(tournament_data["start_date"]) if tournament_data.get("start_date") else None,
-            end_date=datetime.fromisoformat(tournament_data["end_date"]) if tournament_data.get("end_date") else None,
+            start_date=(
+                datetime.fromisoformat(tournament_data["start_date"])
+                if tournament_data.get("start_date")
+                else None
+            ),
+            end_date=(
+                datetime.fromisoformat(tournament_data["end_date"])
+                if tournament_data.get("end_date")
+                else None
+            ),
             doc_id=tournament_id
         )
         return tournament, tournament_id
