@@ -87,7 +87,7 @@ class Tournament:
 
     def create_round(self):
         """
-        Create a new round for the tournament.
+        Generate matches and create a new round for the tournament.
 
         :return: The created Round instance.
         """
