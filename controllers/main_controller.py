@@ -13,15 +13,23 @@ db = TinyDB("data/db.json")
 
 class Controller:
     def __init__(self):
+        """
+        Initialize the Controller with a View instance.
+        """
         self.view = View()
-
         self.tournament = None
 
     def run(self):
+        """
+        Start the application by displaying the welcome message and main menu.
+        """
         self.view.welcome()
         self.main_menu()
 
     def main_menu(self):
+        """
+        Display the main menu and handle user input.
+        """
         while True:
             choice = self.view.main_menu()
             if choice == "1":
@@ -38,6 +46,9 @@ class Controller:
                 continue
 
     def players_menu(self):
+        """
+        Display the players menu and handle user input.
+        """
         while True:
             choice = self.view.players_menu()
             if choice == "1":
@@ -53,6 +64,9 @@ class Controller:
                 continue
 
     def tournaments_menu(self):
+        """
+        Display the tournaments menu and handle user input.
+        """
         while True:
             choice = self.view.tournaments_menu()
             if choice == "1":
@@ -72,6 +86,9 @@ class Controller:
                 continue
 
     def reports_menu(self):
+        """
+        Display the reports menu and handle user input.
+        """
         while True:
             choice = self.view.reports_menu()
             if choice == "1":
@@ -91,6 +108,12 @@ class Controller:
                 continue
 
     def tournament_edit_menu(self, tournament, tournament_id):
+        """
+        Display the tournament edit menu and handle user input.
+
+        :param tournament: The tournament instance to edit.
+        :param tournament_id: The ID of the tournament in the database.
+        """
         while True:
             choice = self.view.tournament_edit_menu()
             if choice == "1":
@@ -109,22 +132,34 @@ class Controller:
                 continue
 
     def report_tournament_details(self):
-        tournament, _ = self.select_tournament()
+        """
+        Display the details of a selected tournament instance.
+        """
+        tournament, tournament_id = self.select_tournament()
         if tournament:
             self.view.show_tournament_details(tournament)
 
     def report_tournament_players(self):
-        tournament, _ = self.select_tournament()
+        """
+        Display the players of a selected tournament instance.
+        """
+        tournament, tournament_id = self.select_tournament()
         if tournament:
             sorted_tournament = self.db_sort_tournament_players(tournament)
             self.view.show_all_tournament_players(sorted_tournament.players)
 
     def report_tournament_rounds_and_matches(self):
+        """
+        Display all rounds and matches of a selected tournament instance.
+        """
         tournament, tournament_id = self.select_tournament()
         if tournament and tournament.rounds:
             self.view.show_all_rounds(tournament, tournament.rounds)
 
     def db_show_all_players(self):
+        """
+        Display all players sorted alphabetically.
+        """
         self.db_sort_players_alphabetically()
 
         players_table = db.table("players")
@@ -138,6 +173,9 @@ class Controller:
         self.view.show_all_players(players)
 
     def db_add_players(self):
+        """
+        Add new players to the database in the "players" table.
+        """
         while True:
             (name, surname, birthday, national_chess_id) = (
                 self.view.prompt_for_add_player()
@@ -159,6 +197,10 @@ class Controller:
                 return
 
     def db_edit_player(self):
+        """
+        Edit an existing player's information in the database in the
+        "players" table.
+        """
         self.db_show_all_players()
 
         self.view.print(
@@ -201,8 +243,11 @@ class Controller:
 
     def db_sort_tournament_players(self, tournament):
         """
-        Sort players in a tournament by name (ascending).
-        return: the updated tournament
+        Sort players in a tournament by name (ascending) in the
+        "tournaments" table in the database.
+
+        :param tournament: The tournament whose players are to be sorted.
+        :return: The updated tournament.
         """
         if not tournament.players:
             self.view.print("\nNo players available in this tournament.\n")
@@ -221,7 +266,7 @@ class Controller:
 
     def db_sort_players_alphabetically(self):
         """
-        Sort players alphabetically by name and surname in the players table
+        Sort players alphabetically by name and surname in the "players" table
         in the database.
         """
         players_table = db.table("players")
@@ -242,6 +287,9 @@ class Controller:
             players_table.insert(player)
 
     def db_show_all_tournaments(self):
+        """
+        Display all tournaments from the "tournaments" table in the database.
+        """
         tournaments_table = db.table("tournaments")
         tournaments_data = tournaments_table.all()
 
@@ -256,7 +304,9 @@ class Controller:
         self.view.show_all_tournaments(tournaments)
 
     def create_tournament(self):
-        # Create a new tournament
+        """
+        Create a new tournament and save it to the database.
+        """
         (name, location, description, number_of_rounds) = (
             self.view.prompt_for_tournament()
         )
@@ -312,6 +362,14 @@ class Controller:
         self.view.print("\nTournament saved.\n")
 
     def add_tournament_players(self, tournament, tournament_id):
+        """
+        Add players from the "players" table in the database to an existing
+        tournament.
+
+        :param tournament: The tournament instance to which players are to be
+        added.
+        :param tournament_id: The ID of the tournament in the database.
+        """
         self.view.show_all_tournament_players(tournament.players)
 
         players_table = db.table("players")
@@ -369,6 +427,14 @@ class Controller:
         self.view.print("\nTournament successfully updated.")
 
     def remove_tournament_players(self, tournament, tournament_id):
+        """
+        Remove players from an existing tournament in the "tournaments" table
+        in the database.
+
+        :param tournament: The tournament instance from which players are to be
+        removed.
+        :param tournament_id: The ID of the tournament in the database.
+        """
         self.view.show_all_tournament_players(tournament.players)
 
         national_chess_ids = self.view.prompt_for_remove_tournament_players()
@@ -408,6 +474,9 @@ class Controller:
         self.view.print("Tournament successfully updated.")
 
     def edit_tournament(self):
+        """
+        Edit an existing tournament's information.
+        """
         tournaments_table = db.table("tournaments")
         tournaments_data = tournaments_table.all()
 
@@ -438,6 +507,12 @@ class Controller:
         self.tournament_edit_menu(tournament, tournament_id)
 
     def edit_tournament_infos(self, tournament, tournament_id):
+        """
+        Edit the information of a tournament.
+
+        :param tournament: The tournament instance to edit.
+        :param tournament_id: The ID of the tournament in the database.
+        """
         self.view.show_tournament_infos(tournament)
 
         new_name, new_location, new_description, new_number_of_rounds = (
@@ -464,6 +539,11 @@ class Controller:
         self.view.print("\nTournament successfully updated.\n")
 
     def select_tournament(self):
+        """
+        Select a tournament from the database.
+
+        :return: The selected tournament instance and its ID.
+        """
         tournaments_table = db.table("tournaments")
         tournaments_data = tournaments_table.all()
 
@@ -556,11 +636,18 @@ class Controller:
         return tournament, tournament_id
 
     def start_tournament(self):
-        # Select a tournament
+        """
+        Start a selected tournament instance.
+        """
         tournament, tournament_id = self.select_tournament()
         self.run_tournament(tournament)
 
     def run_tournament(self, tournament):
+        """
+        Run the tournament by managing rounds and matches.
+
+        :param tournament: The tournament instance to run.
+        """
         self.view.print(tournament)
 
         if not tournament.start_date:

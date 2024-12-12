@@ -12,6 +12,15 @@ class Player:
             national_chess_id: str,
             score=0.0
     ):
+        """
+        Initialize a Player instance.
+
+        :param name: The player's  name.
+        :param surname: The player's first name.
+        :param birthday: The player's date of birth.
+        :param national_chess_id: The player's national chess ID.
+        :param score: The player's score in the tournament.
+        """
         self.name = name
         self.surname = surname
         self.birthday = birthday
@@ -19,6 +28,11 @@ class Player:
         self.score = score
 
     def serialize(self):
+        """
+        Serialize the player data to a dictionary.
+
+        :return: A dictionary representation of the player.
+        """
         return {
             "name": self.name,
             "surname": self.surname,
@@ -27,6 +41,9 @@ class Player:
         }
 
     def __repr__(self):
+        """
+        Return a string representation of the player.
+        """
         return (
             f"{self.name} {self.surname}\n"
             f"Birthday : {self.birthday}\n"
@@ -35,6 +52,9 @@ class Player:
         )
 
     def db_save_player(self):
+        """
+        Save or update the player in the database in the "players" table.
+        """
         players_table = db.table("players")
         players_table.upsert(
             self.serialize(),

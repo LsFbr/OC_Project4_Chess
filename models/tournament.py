@@ -23,6 +23,20 @@ class Tournament:
             end_date=None,
             doc_id=None
     ):
+        """
+        Initialize a Tournament instance.
+
+        :param name: The name of the tournament.
+        :param location: The location of the tournament.
+        :param description: A description of the tournament.
+        :param players: A list of players participating in the tournament.
+        :param number_of_rounds: The total number of rounds in the tournament.
+        :param current_round_number: The current round number.
+        :param rounds: A list of rounds in the tournament.
+        :param start_date: The start date of the tournament.
+        :param end_date: The end date of the tournament.
+        :param doc_id: The document ID in the database.
+        """
         self.name = name
         self.location = location
         self.description = description
@@ -38,6 +52,11 @@ class Tournament:
         self.doc_id = doc_id
 
     def serialize(self):
+        """
+        Serialize the tournament data to a dictionary.
+
+        :return: A dictionary representation of the tournament.
+        """
         return {
             "name": self.name,
             "location": self.location,
@@ -67,6 +86,11 @@ class Tournament:
         }
 
     def create_round(self):
+        """
+        Create a new round for the tournament.
+
+        :return: The created Round instance.
+        """
         self.current_round_number += 1
         round_name = f"Round {self.current_round_number}"
         round = Round(round_name)
@@ -118,25 +142,47 @@ class Tournament:
         return round
 
     def start_current_round(self):
+        """
+        Start the current round of the tournament.
+        """
         self.rounds[-1].start_round()
 
     def __repr__(self):
+        """
+        Return a string representation of the tournament.
+
+        :return: A string representation of the tournament.
+        """
         return (
             f"<<<Tournament : {self.name} --- "
             f"Round |{self.current_round_number}/{self.number_of_rounds}|>>>"
         )
 
     def set_start_date(self):
+        """
+        Set the start date of the tournament to the current date and time.
+        """
         self.start_date = datetime.now()
 
     def set_end_date(self):
+        """
+        Set the end date of the tournament to the current date and time.
+        """
         self.end_date = datetime.now()
 
     def save_tournament(self):
+        """
+        Save or update the tournament in the database.
+        """
         tournaments_table = db.table("tournaments")
         tournaments_table.upsert(self.serialize(), Query().name == self.name)
 
     def get_ranked_players(self):
+        """
+        Get the players ranked by their score.
+
+        :return: A list of players sorted by score.
+        """
         return sorted(
             self.players, key=lambda player: (
                 -player.score, random.random()

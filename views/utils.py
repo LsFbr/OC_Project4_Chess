@@ -2,6 +2,12 @@ from datetime import datetime
 
 
 def format_date(date_obj):
+    """
+    Format a date object to a string.
+
+    :param date_obj: The date object to format.
+    :return: A formatted date string.
+    """
     if isinstance(date_obj, str):
         try:
             date_obj = datetime.fromisoformat(date_obj)
