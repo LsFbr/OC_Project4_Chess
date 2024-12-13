@@ -24,8 +24,8 @@ class Match:
         :return: A tuple representation of the match.
         """
         return (
-            [self.player_1.serialize(), self.player_1_match_score],
-            [self.player_2.serialize(), self.player_2_match_score]
+            [{"player_1": self.player_1.serialize(), "player_1_match_score": self.player_1_match_score}],
+            [{"player_2": self.player_2.serialize(), "player_2_match_score": self.player_2_match_score}]
         )
 
     def set_result(self, result):

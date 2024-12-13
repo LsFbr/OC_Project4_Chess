@@ -145,7 +145,7 @@ class Controller:
         """
         tournament, tournament_id = self.select_tournament()
         if tournament:
-            sorted_tournament = self.db_sort_tournament_players(tournament)
+            sorted_tournament = self.sort_tournament_players(tournament)
             self.view.show_all_tournament_players(sorted_tournament.players)
 
     def report_tournament_rounds_and_matches(self):
@@ -241,12 +241,11 @@ class Controller:
 
         self.view.print("\nPlayer successfully updated.\n")
 
-    def db_sort_tournament_players(self, tournament):
+    def sort_tournament_players(self, tournament):
         """
-        Sort players in a tournament by name (ascending) in the
-        "tournaments" table in the database.
+        Sort players in a tournament by name (ascending).
 
-        :param tournament: The tournament whose players are to be sorted.
+        :param tournament: The tournament instance whose players are to be sorted.
         :return: The updated tournament.
         """
         if not tournament.players:
@@ -353,7 +352,7 @@ class Controller:
             name, location, description, selected_players, number_of_rounds
         )
 
-        self.tournament = self.db_sort_tournament_players(self.tournament)
+        self.tournament = self.sort_tournament_players(self.tournament)
         # Save the tournament in the database
         tournaments_table = db.table("tournaments")
         tournaments_table.insert(self.tournament.serialize())
@@ -417,7 +416,7 @@ class Controller:
 
         tournament.players.extend(selected_players)
 
-        tournament = self.db_sort_tournament_players(tournament)
+        tournament = self.sort_tournament_players(tournament)
 
         tournaments_table = db.table("tournaments")
         tournaments_table.update(
@@ -579,8 +578,10 @@ class Controller:
         for round_data in tournament_data["rounds"]:
             matches = []
             for match_data in round_data["matches"]:
-                player_1_data, player_1_match_score = match_data[0]
-                player_2_data, player_2_match_score = match_data[1]
+                player_1_data = match_data[0][0]["player_1"]
+                player_1_match_score = match_data[0][0]["player_1_match_score"]
+                player_2_data = match_data[1][0]["player_2"]
+                player_2_match_score = match_data[1][0]["player_2_match_score"]
 
                 player_1 = Player(**player_1_data)
                 player_2 = Player(**player_2_data)
