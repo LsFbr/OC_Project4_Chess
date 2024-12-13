@@ -104,6 +104,8 @@ class Tournament:
 
         # Track all pairs that have already played
         played_pairs = set()
+        player_match_count = {player.national_chess_id: 0 for player in self.players}
+
         for previous_round in self.rounds:
             for match in previous_round.matches:
                 pair = frozenset(
@@ -113,6 +115,13 @@ class Tournament:
                     ]
                 )
                 played_pairs.add(pair)
+                player_match_count[match.player_1.national_chess_id] += 1
+                player_match_count[match.player_2.national_chess_id] += 1
+
+        # Sort players by the number of matches played, then by score
+        self.players.sort(
+            key=lambda p: (player_match_count[p.national_chess_id], -p.score)
+        )
 
         unpaired_players = self.players[:]
 
@@ -137,6 +146,10 @@ class Tournament:
 
             match = Match(player_1, best_match)
             round.matches.append(match)
+
+            # Update match count for each player
+            player_match_count[player_1.national_chess_id] += 1
+            player_match_count[best_match.national_chess_id] += 1
 
         self.rounds.append(round)
         return round
