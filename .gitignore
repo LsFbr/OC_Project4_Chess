@@ -1,4 +1,5 @@
 OCProject4-venv/
+venv/
 __pycache__/
 *.pyc
 data/*
