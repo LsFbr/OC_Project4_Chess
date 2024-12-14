@@ -556,10 +556,7 @@ class Controller:
         ]
         self.view.show_all_tournaments(tournaments)
 
-        self.view.print(
-            "Enter the ID of the tournament you want to select :"
-        )
-
+        self.view.print("Enter the ID of the tournament you want to select :")
         tournament_id = int(self.view.prompt_for_tournament_id())
 
         tournament_data = tournaments_table.get(doc_id=tournament_id)
@@ -568,51 +565,8 @@ class Controller:
             self.view.print("\nTournament not found.\n")
             return None, None
 
-        # Convert players to Player instances
-        players = [
-            Player(**player_data) for player_data in tournament_data["players"]
-        ]
-
-        # Convert rounds to Round instances, and matches to Match instances
-        rounds = []
-        for round_data in tournament_data["rounds"]:
-            matches = []
-            for match_data in round_data["matches"]:
-                player_1_data = match_data[0][0]["player_1"]
-                player_1_match_score = match_data[0][0]["player_1_match_score"]
-                player_2_data = match_data[1][0]["player_2"]
-                player_2_match_score = match_data[1][0]["player_2_match_score"]
-
-                player_1 = Player(**player_1_data)
-                player_2 = Player(**player_2_data)
-
-                match = Match(
-                    player_1,
-                    player_2,
-                    player_1_match_score,
-                    player_2_match_score
-                )
-                matches.append(match)
-
-            # Convert start_date and end_date to datetime objects
-            start_date = (
-                datetime.fromisoformat(round_data["start_date"])
-                if round_data.get("start_date")
-                else None
-            )
-            end_date = (
-                datetime.fromisoformat(round_data["end_date"])
-                if round_data.get("end_date")
-                else None
-            )
-
-            round_instance = Round(
-                round_name=round_data["round_name"],
-                matches=matches,
-                start_date=start_date,
-                end_date=end_date
-            )
-            rounds.append(round_instance)
+        players = self._convert_players(tournament_data["players"])
+        rounds = self._convert_rounds(tournament_data["rounds"])
 
         tournament = Tournament(
             name=tournament_data["name"],
@@ -635,6 +589,70 @@ class Controller:
             doc_id=tournament_id
         )
         return tournament, tournament_id
+
+    def _convert_players(self, players_data):
+        """
+        Convert player data to Player instances.
+
+        :param players_data: List of player data dictionaries.
+        :return: List of Player instances.
+        """
+        return [Player(**player_data) for player_data in players_data]
+
+    def _convert_rounds(self, rounds_data):
+        """
+        Convert round data to Round instances.
+
+        :param rounds_data: List of round data dictionaries.
+        :return: List of Round instances.
+        """
+        rounds = []
+        for round_data in rounds_data:
+            matches = self._convert_matches(round_data["matches"])
+            start_date = (
+                datetime.fromisoformat(round_data["start_date"])
+                if round_data.get("start_date")
+                else None
+            )
+            end_date = (
+                datetime.fromisoformat(round_data["end_date"])
+                if round_data.get("end_date")
+                else None
+            )
+            round_instance = Round(
+                round_name=round_data["round_name"],
+                matches=matches,
+                start_date=start_date,
+                end_date=end_date
+            )
+            rounds.append(round_instance)
+        return rounds
+
+    def _convert_matches(self, matches_data):
+        """
+        Convert match data to Match instances.
+
+        :param matches_data: List of match data dictionaries.
+        :return: List of Match instances.
+        """
+        matches = []
+        for match_data in matches_data:
+            player_1_data = match_data[0][0]["player_1"]
+            player_1_match_score = match_data[0][0]["player_1_match_score"]
+            player_2_data = match_data[1][0]["player_2"]
+            player_2_match_score = match_data[1][0]["player_2_match_score"]
+
+            player_1 = Player(**player_1_data)
+            player_2 = Player(**player_2_data)
+
+            match = Match(
+                player_1,
+                player_2,
+                player_1_match_score,
+                player_2_match_score
+            )
+            matches.append(match)
+        return matches
 
     def start_tournament(self):
         """
