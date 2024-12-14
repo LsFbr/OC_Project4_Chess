@@ -90,11 +90,11 @@ To deploy and run the chess tournament management software, follow these steps f
    Execute the main script to start the application:
    - On Linux and macOS:
      ```bash
-     python3 main.py
+     python3 chess_manager.py
      ```
    - On Windows:
      ```bash
-     python main.py
+     python chess_manager.py
      ```
 
 ### Notes
