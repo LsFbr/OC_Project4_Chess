@@ -390,25 +390,49 @@ class Controller:
         :param tournament_id: The ID of the tournament in the database.
         """
         self.view.show_all_tournament_players(tournament.players)
+        players_data = self._get_all_players_data()
+        self.view.show_all_players(players_data)
 
-        players_table = db.table("players")
-        players_data = players_table.all()
-
-        self.view.show_all_players(
-            [Player(**player) for player in players_data]
+        national_chess_ids_list = self._prompt_for_player_ids()
+        selected_players = self._validate_and_select_players(
+            national_chess_ids_list, players_data, tournament
         )
 
+        if selected_players:
+            self._update_tournament_with_players(
+                tournament, tournament_id, selected_players
+            )
+
+    def _get_all_players_data(self):
+        """
+        Retrieve all players data from the database.
+
+        :return: A list of player data dictionaries.
+        """
+        players_table = db.table("players")
+        return [Player(**player) for player in players_table.all()]
+
+    def _prompt_for_player_ids(self):
+        """
+        Prompt the user to enter player IDs to add to the tournament.
+
+        :return: A list of national chess IDs.
+        """
         national_chess_ids = self.view.prompt_for_add_tournament_players()
-        national_chess_ids_list = [
-            chess_id.strip() for chess_id in national_chess_ids.split(",")
-        ]
+        return [chess_id.strip() for chess_id in national_chess_ids.split(",")]
 
-        existing_ids = {
-            player.national_chess_id for player in tournament.players
-        }
+    def _validate_and_select_players(self, national_chess_ids_list, players_data, tournament):
+        """
+        Validate and select players based on the provided IDs.
 
-        # Create a list of Player objects from the selected players
+        :param national_chess_ids_list: List of national chess IDs.
+        :param players_data: List of Player instances.
+        :param tournament: The tournament instance.
+        :return: A list of selected Player instances.
+        """
+        existing_ids = {player.national_chess_id for player in tournament.players}
         selected_players = []
+
         for chess_id in national_chess_ids_list:
             if chess_id in existing_ids:
                 self.view.print(
@@ -417,31 +441,28 @@ class Controller:
                 )
                 continue
 
-            player_data = players_table.get(
-                Query().national_chess_id == chess_id
-            )
-            if player_data:
-                player = Player(**player_data)
-
-                if player not in tournament.players:
-                    selected_players.append(player)
-                    self.view.print(
-                        f"Added {chess_id} "
-                        f"{player.name} {player.surname}."
-                    )
+            player = next((p for p in players_data if p.national_chess_id == chess_id), None)
+            if player:
+                selected_players.append(player)
+                self.view.print(f"Added {chess_id} {player.name} {player.surname}.")
             else:
-                self.view.print(
-                    f"Player with National Chess ID {chess_id} not found."
-                )
+                self.view.print(f"Player with National Chess ID {chess_id} not found.")
 
+        return selected_players
+
+    def _update_tournament_with_players(self, tournament, tournament_id, selected_players):
+        """
+        Update the tournament with the selected players and save to the database.
+
+        :param tournament: The tournament instance.
+        :param tournament_id: The ID of the tournament in the database.
+        :param selected_players: List of Player instances to add.
+        """
         tournament.players.extend(selected_players)
-
         tournament = self.sort_tournament_players(tournament)
 
         tournaments_table = db.table("tournaments")
-        tournaments_table.update(
-            tournament.serialize(), doc_ids=[tournament_id]
-        )
+        tournaments_table.update(tournament.serialize(), doc_ids=[tournament_id])
 
         self.view.print("\nTournament successfully updated.")
 
