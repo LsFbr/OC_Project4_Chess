@@ -655,73 +655,105 @@ class Controller:
             tournament.set_start_date()
 
         if tournament.end_date:
-            self.view.print("Tournament already ended.")
-            ranked_players = tournament.get_ranked_players()
-            self.view.show_tournament_results(tournament, ranked_players)
+            self._handle_tournament_end(tournament)
             return
 
         while True:
-            # Prompt the user to create a new round
-            round_number = int(tournament.current_round_number) + 1
+            round_instance = self._create_new_round(tournament)
+            if not round_instance:
+                return
 
-            while True:
-                choice = self.view.prompt_for_create_round(round_number)
-                if choice == "y":
-                    round_instance = tournament.create_round()
-                    break
-                elif choice == "n":
-                    self.view.print(
-                        "Round creation cancelled.\n"
-                        "Back to Tournaments Menu..."
-                    )
-                    return
-                else:
-                    self.view.print("\nInvalid choice! Please try again.")
-                    continue
-
-            self.view.show_round_matches(round_instance)
-
-            # Prompt the user to start the round
-            while True:
-                choice = self.view.prompt_for_start_round(round_instance)
-                if choice == "y":
-                    tournament.start_current_round()
-                    break
-                elif choice == "n":
-                    self.view.print(
-                        "Round start cancelled.\n"
-                        "Back to Tournaments Menu..."
-                    )
-                    return
-                else:
-                    self.view.print("\nInvalid choice! Please try again.")
-                    continue
-
-            self.view.print(f"{round_instance.round_name} started !!!")
-
-            # Prompt the user to enter the results of the matches
-            for match in round_instance.matches:
-                self.view.show_match(match)
-                choice = self.view.prompt_for_match_result()
-                # Ajouter vérif
-                match.set_result(choice)
+            self._start_round(tournament, round_instance)
+            self._enter_match_results(round_instance)
 
             round_instance.end_round()
-
             self.view.show_round_results(round_instance)
 
             ranked_players = tournament.get_ranked_players()
 
-            if (tournament.current_round_number ==
-                    tournament.number_of_rounds):
-
-                tournament.set_end_date()
-                self.view.print("Tournament ended !!!")
-                self.view.show_tournament_results(
-                    tournament, ranked_players
-                )
-                tournament.save_tournament()
+            if tournament.current_round_number == tournament.number_of_rounds:
+                self._finalize_tournament(tournament, ranked_players)
                 return
 
             self.view.show_ranked_players(ranked_players)
             tournament.save_tournament()
+
+    def _handle_tournament_end(self, tournament):
+        """
+        Handle the end of a tournament.
+
+        :param tournament: The tournament instance.
+        """
+        self.view.print("Tournament already ended.")
+        ranked_players = tournament.get_ranked_players()
+        self.view.show_tournament_results(tournament, ranked_players)
+
+    def _create_new_round(self, tournament):
+        """
+        Prompt the user to create a new round.
+
+        :param tournament: The tournament instance.
+        :return: The created round instance or None if cancelled.
+        """
+        round_number = int(tournament.current_round_number) + 1
+
+        while True:
+            choice = self.view.prompt_for_create_round(round_number)
+            if choice == "y":
+                return tournament.create_round()
+            elif choice == "n":
+                self.view.print(
+                    "Round creation cancelled.\n"
+                    "Back to Tournaments Menu..."
+                )
+                return None
+            else:
+                self.view.print("\nInvalid choice! Please try again.")
+
+    def _start_round(self, tournament, round_instance):
+        """
+        Start the current round of the tournament.
+
+        :param tournament: The tournament instance.
+        :param round_instance: The round instance to start.
+        """
+        self.view.show_round_matches(round_instance)
+
+        while True:
+            choice = self.view.prompt_for_start_round(round_instance)
+            if choice == "y":
+                tournament.start_current_round()
+                break
+            elif choice == "n":
+                self.view.print(
+                    "Round start cancelled.\n"
+                    "Back to Tournaments Menu..."
+                )
+                return
+            else:
+                self.view.print("\nInvalid choice! Please try again.")
+
+        self.view.print(f"{round_instance.round_name} started !!!")
+
+    def _enter_match_results(self, round_instance):
+        """
+        Prompt the user to enter the results of the matches.
+
+        :param round_instance: The round instance.
+        """
+        for match in round_instance.matches:
+            self.view.show_match(match)
+            choice = self.view.prompt_for_match_result()
+            match.set_result(choice)
+
+    def _finalize_tournament(self, tournament, ranked_players):
+        """
+        Finalize the tournament and display results.
+
+        :param tournament: The tournament instance.
+        :param ranked_players: The list of ranked players.
+        """
+        tournament.set_end_date()
+        self.view.print("Tournament ended !!!")
+        self.view.show_tournament_results(tournament, ranked_players)
+        tournament.save_tournament()
