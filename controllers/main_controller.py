@@ -306,7 +306,25 @@ class Controller:
         """
         Create a new tournament and save it to the database.
         """
-        (name, location, description, number_of_rounds) = (
+        name, location, description, number_of_rounds = self.get_tournament_info()
+        selected_players = self.select_tournament_players()
+
+        self.tournament = Tournament(
+            name, location, description, selected_players, number_of_rounds
+        )
+
+        self.tournament = self.sort_tournament_players(self.tournament)
+        self.save_tournament_to_db()
+        self.view.print("\nTournament saved.\n")
+
+    def get_tournament_info(self):
+        """
+        Prompt the user for tournament information.
+
+        :return: Tuple containing tournament name, location, description, and
+                 number of rounds.
+        """
+        name, location, description, number_of_rounds = (
             self.view.prompt_for_tournament()
         )
 
@@ -315,13 +333,18 @@ class Controller:
         else:
             number_of_rounds = int(number_of_rounds)
 
-        # Add players to the tournament
+        return name, location, description, number_of_rounds
+
+    def select_tournament_players(self):
+        """
+        Select players for the tournament from the database.
+
+        :return: List of selected Player instances.
+        """
         players_table = db.table("players")
         players_data = players_table.all()
 
-        # Convert player data to Player instances
         players = [Player(**player) for player in players_data]
-
         self.view.show_all_players(players)
 
         national_chess_ids = self.view.prompt_for_add_tournament_players()
@@ -329,7 +352,6 @@ class Controller:
             chess_id.strip() for chess_id in national_chess_ids.split(",")
         ]
 
-        # Create a list of Player objects from the selected players
         selected_players = []
         for chess_id in national_chess_ids_list:
             player_data = players_table.get(
@@ -348,17 +370,15 @@ class Controller:
                     f"\nPlayer with National Chess ID {chess_id} not found.\n"
                 )
 
-        self.tournament = Tournament(
-            name, location, description, selected_players, number_of_rounds
-        )
+        return selected_players
 
-        self.tournament = self.sort_tournament_players(self.tournament)
-        # Save the tournament in the database
+    def save_tournament_to_db(self):
+        """
+        Save the current tournament to the database.
+        """
         tournaments_table = db.table("tournaments")
         tournaments_table.insert(self.tournament.serialize())
         self.tournament = None
-
-        self.view.print("\nTournament saved.\n")
 
     def add_tournament_players(self, tournament, tournament_id):
         """
