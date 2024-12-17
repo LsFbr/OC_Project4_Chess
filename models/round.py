@@ -52,11 +52,3 @@ class Round:
         Set the end date of the round to the current date and time.
         """
         self.end_date = datetime.now()
-
-    def __repr__(self):
-        """
-        Return a string representation of the round.
-
-        :return: A string representation of the round.
-        """
-        return f"{self.round_name}"

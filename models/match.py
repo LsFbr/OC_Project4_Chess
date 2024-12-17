@@ -47,17 +47,3 @@ class Match:
             self.player_1.score += 0.5
             self.player_2_match_score += 0.5
             self.player_2.score += 0.5
-
-    def __repr__(self):
-        """
-        Return a string representation of the match.
-
-        :return: A string representation of the match.
-        """
-        return (
-            f"{self.player_1.national_chess_id} "
-            f"{self.player_1.name} {self.player_1.surname} "
-            f"({self.player_1_match_score}|{self.player_2_match_score}) "
-            f"{self.player_2.national_chess_id} "
-            f"{self.player_2.name} {self.player_2.surname}"
-        )

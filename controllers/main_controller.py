@@ -513,39 +513,6 @@ class Controller:
 
         self.view.print("Tournament successfully updated.")
 
-    def edit_tournament(self):
-        """
-        Edit an existing tournament's information.
-        """
-        tournaments_table = db.table("tournaments")
-        tournaments_data = tournaments_table.all()
-
-        if not tournaments_data:
-            self.view.print("No tournaments available.")
-            return
-
-        tournaments = [
-            (Tournament(**tournament), tournament.doc_id)
-            for tournament in tournaments_data
-        ]
-        self.view.show_all_tournaments(tournaments)
-
-        self.view.print(
-            "Enter the ID of the tournament you want to edit :"
-        )
-
-        tournament_id = int(self.view.prompt_for_tournament_id())
-
-        tournament_data = tournaments_table.get(doc_id=tournament_id)
-
-        if not tournament_data:
-            self.view.print("\nTournament not found.\n")
-            return
-
-        tournament = Tournament(**tournament_data)
-        self.view.show_tournament_infos(tournament)
-        self.tournament_edit_menu(tournament, tournament_id)
-
     def edit_tournament_infos(self, tournament, tournament_id):
         """
         Edit the information of a tournament.

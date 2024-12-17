@@ -40,17 +40,6 @@ class Player:
             "national_chess_id": self.national_chess_id,
         }
 
-    def __repr__(self):
-        """
-        Return a string representation of the player.
-        """
-        return (
-            f"{self.name} {self.surname}\n"
-            f"Birthday : {self.birthday}\n"
-            f"Chess ID : {self.national_chess_id}"
-            f"Score in tournament : {self.score}"
-        )
-
     def db_save_player(self):
         """
         Save or update the player in the database in the "players" table.
