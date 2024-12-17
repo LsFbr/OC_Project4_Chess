@@ -95,7 +95,7 @@ class Tournament:
         round = Round(f"Round {self.current_round_number}")
 
         played_pairs, player_match_count = self.get_match_history()
-        self.sort_players(player_match_count)
+        self.sort_players_for_round(player_match_count)
         matches = self.generate_matches(played_pairs, player_match_count)
 
         round.matches = matches
@@ -123,7 +123,7 @@ class Tournament:
 
         return played_pairs, player_match_count
 
-    def sort_players(self, player_match_count):
+    def sort_players_for_round(self, player_match_count):
         """
         Sort players by number of matches, score, and random factor.
         """
