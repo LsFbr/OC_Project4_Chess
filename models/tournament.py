@@ -92,67 +92,88 @@ class Tournament:
         :return: The created Round instance.
         """
         self.current_round_number += 1
-        round_name = f"Round {self.current_round_number}"
-        round = Round(round_name)
+        round = Round(f"Round {self.current_round_number}")
 
-        if self.current_round_number == 1:
-            random.shuffle(self.players)
-        else:
-            self.players.sort(
-                key=lambda x: (x.score, random.random()), reverse=True
-            )
+        played_pairs, player_match_count = self.get_match_history()
+        self.sort_players(player_match_count)
+        matches = self.generate_matches(played_pairs, player_match_count)
 
-        # Track all pairs that have already played
+        round.matches = matches
+        self.rounds.append(round)
+        return round
+
+    def get_match_history(self):
+        """
+        Track all pairs that have already played and count matches per player.
+
+        :return: Tuple of (played_pairs, player_match_count)
+        """
         played_pairs = set()
         player_match_count = {player.national_chess_id: 0 for player in self.players}
 
         for previous_round in self.rounds:
             for match in previous_round.matches:
-                pair = frozenset(
-                    [
-                        match.player_1.national_chess_id,
-                        match.player_2.national_chess_id
-                    ]
-                )
+                pair = frozenset([
+                    match.player_1.national_chess_id,
+                    match.player_2.national_chess_id
+                ])
                 played_pairs.add(pair)
                 player_match_count[match.player_1.national_chess_id] += 1
                 player_match_count[match.player_2.national_chess_id] += 1
 
-        # Sort players by the number of matches played, then by score
+        return played_pairs, player_match_count
+
+    def sort_players(self, player_match_count):
+        """
+        Sort players by number of matches, score, and random factor.
+        """
         self.players.sort(
-            key=lambda p: (player_match_count[p.national_chess_id], -p.score)
+            key=lambda p: (
+                player_match_count[p.national_chess_id],
+                -p.score,
+                random.random()
+            )
         )
 
+    def generate_matches(self, played_pairs, player_match_count):
+        """
+        Generate matches for the current round.
+
+        :param played_pairs: Set of pairs that have already played
+        :param player_match_count: Dict of match counts per player
+        :return: List of Match instances
+        """
+        matches = []
         unpaired_players = self.players[:]
 
         while len(unpaired_players) > 1:
             player_1 = unpaired_players.pop(0)
-            best_match = None
-
-            # Find the first player_2 who has not played with player_1 yet
-            for player_2 in unpaired_players:
-                current_pair = frozenset(
-                    [player_1.national_chess_id, player_2.national_chess_id]
-                )
-                if current_pair not in played_pairs:
-                    best_match = player_2
-                    break
-
-            # Pick the first remaining player
-            if not best_match:
-                best_match = unpaired_players[0]
+            best_match = self.find_best_match(player_1, unpaired_players, played_pairs)
 
             unpaired_players.remove(best_match)
-
             match = Match(player_1, best_match)
-            round.matches.append(match)
+            matches.append(match)
 
-            # Update match count for each player
-            player_match_count[player_1.national_chess_id] += 1
-            player_match_count[best_match.national_chess_id] += 1
+        return matches
 
-        self.rounds.append(round)
-        return round
+    def find_best_match(self, player_1, unpaired_players, played_pairs):
+        """
+        Find the best match for a player.
+
+        :param player_1: The player to find a match for
+        :param unpaired_players: List of players not yet matched
+        :param played_pairs: Set of pairs that have already played
+        :return: The best match for player_1
+        """
+        for player_2 in unpaired_players:
+            current_pair = frozenset([
+                player_1.national_chess_id,
+                player_2.national_chess_id
+            ])
+            if current_pair not in played_pairs:
+                return player_2
+
+        return unpaired_players[0]
 
     def start_current_round(self):
         """
