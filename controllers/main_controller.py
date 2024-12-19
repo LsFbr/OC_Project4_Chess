@@ -390,20 +390,20 @@ class Controller:
         :param tournament_id: The ID of the tournament in the database.
         """
         self.view.show_all_tournament_players(tournament.players)
-        players_data = self._get_all_players_data()
+        players_data = self.get_all_players_data()
         self.view.show_all_players(players_data)
 
-        national_chess_ids_list = self._prompt_for_player_ids()
-        selected_players = self._validate_and_select_players(
+        national_chess_ids_list = self.prompt_for_player_ids()
+        selected_players = self.validate_and_select_players(
             national_chess_ids_list, players_data, tournament
         )
 
         if selected_players:
-            self._update_tournament_with_players(
+            self.update_tournament_with_players(
                 tournament, tournament_id, selected_players
             )
 
-    def _get_all_players_data(self):
+    def get_all_players_data(self):
         """
         Retrieve all players data from the database.
 
@@ -412,7 +412,7 @@ class Controller:
         players_table = db.table("players")
         return [Player(**player) for player in players_table.all()]
 
-    def _prompt_for_player_ids(self):
+    def prompt_for_player_ids(self):
         """
         Prompt the user to enter player IDs to add to the tournament.
 
@@ -421,7 +421,7 @@ class Controller:
         national_chess_ids = self.view.prompt_for_add_tournament_players()
         return [chess_id.strip() for chess_id in national_chess_ids.split(",")]
 
-    def _validate_and_select_players(self, national_chess_ids_list, players_data, tournament):
+    def validate_and_select_players(self, national_chess_ids_list, players_data, tournament):
         """
         Validate and select players based on the provided IDs.
 
@@ -450,7 +450,7 @@ class Controller:
 
         return selected_players
 
-    def _update_tournament_with_players(self, tournament, tournament_id, selected_players):
+    def update_tournament_with_players(self, tournament, tournament_id, selected_players):
         """
         Update the tournament with the selected players and save to the database.
 
@@ -573,8 +573,8 @@ class Controller:
             self.view.print("\nTournament not found.\n")
             return None, None
 
-        players = self._convert_players(tournament_data["players"])
-        rounds = self._convert_rounds(tournament_data["rounds"])
+        players = self.convert_players(tournament_data["players"])
+        rounds = self.convert_rounds(tournament_data["rounds"])
 
         tournament = Tournament(
             name=tournament_data["name"],
@@ -598,7 +598,7 @@ class Controller:
         )
         return tournament, tournament_id
 
-    def _convert_players(self, players_data):
+    def convert_players(self, players_data):
         """
         Convert player data to Player instances.
 
@@ -607,7 +607,7 @@ class Controller:
         """
         return [Player(**player_data) for player_data in players_data]
 
-    def _convert_rounds(self, rounds_data):
+    def convert_rounds(self, rounds_data):
         """
         Convert round data to Round instances.
 
@@ -616,7 +616,7 @@ class Controller:
         """
         rounds = []
         for round_data in rounds_data:
-            matches = self._convert_matches(round_data["matches"])
+            matches = self.convert_matches(round_data["matches"])
             start_date = (
                 datetime.fromisoformat(round_data["start_date"])
                 if round_data.get("start_date")
@@ -636,7 +636,7 @@ class Controller:
             rounds.append(round_instance)
         return rounds
 
-    def _convert_matches(self, matches_data):
+    def convert_matches(self, matches_data):
         """
         Convert match data to Match instances.
 
@@ -681,16 +681,18 @@ class Controller:
             tournament.set_start_date()
 
         if tournament.end_date:
-            self._handle_tournament_end(tournament)
+            self.handle_tournament_end(tournament)
             return
 
         while True:
-            round_instance = self._create_new_round(tournament)
+            round_instance = self.create_new_round(tournament)
             if not round_instance:
                 return
 
-            self._start_round(tournament, round_instance)
-            self._enter_match_results(round_instance)
+            if not self.start_round(tournament, round_instance):
+                return
+
+            self.enter_match_results(round_instance)
 
             round_instance.end_round()
             self.view.show_round_results(round_instance)
@@ -698,13 +700,13 @@ class Controller:
             ranked_players = tournament.get_ranked_players()
 
             if tournament.current_round_number == tournament.number_of_rounds:
-                self._finalize_tournament(tournament, ranked_players)
+                self.finalize_tournament(tournament, ranked_players)
                 return
 
             self.view.show_ranked_players(ranked_players)
             tournament.save_tournament()
 
-    def _handle_tournament_end(self, tournament):
+    def handle_tournament_end(self, tournament):
         """
         Handle the end of a tournament.
 
@@ -714,7 +716,7 @@ class Controller:
         ranked_players = tournament.get_ranked_players()
         self.view.show_tournament_results(tournament, ranked_players)
 
-    def _create_new_round(self, tournament):
+    def create_new_round(self, tournament):
         """
         Prompt the user to create a new round.
 
@@ -736,12 +738,13 @@ class Controller:
             else:
                 self.view.print("\nInvalid choice! Please try again.")
 
-    def _start_round(self, tournament, round_instance):
+    def start_round(self, tournament, round_instance):
         """
         Start the current round of the tournament.
 
         :param tournament: The tournament instance.
         :param round_instance: The round instance to start.
+        :return: True if the round started, False if cancelled.
         """
         self.view.show_round_matches(round_instance)
 
@@ -749,30 +752,34 @@ class Controller:
             choice = self.view.prompt_for_start_round(round_instance)
             if choice == "y":
                 tournament.start_current_round()
-                break
+                self.view.print(f"{round_instance.round_name} started !!!")
+                return True
             elif choice == "n":
                 self.view.print(
                     "Round start cancelled.\n"
                     "Back to Tournaments Menu..."
                 )
-                return
+                return False
             else:
                 self.view.print("\nInvalid choice! Please try again.")
 
-        self.view.print(f"{round_instance.round_name} started !!!")
-
-    def _enter_match_results(self, round_instance):
+    def enter_match_results(self, round_instance):
         """
         Prompt the user to enter the results of the matches.
 
         :param round_instance: The round instance.
         """
         for match in round_instance.matches:
-            self.view.show_match(match)
-            choice = self.view.prompt_for_match_result()
-            match.set_result(choice)
+            while True:
+                self.view.show_match(match)
+                choice = self.view.prompt_for_match_result()
+                if choice in ["0", "1", "2"]:
+                    match.set_result(choice)
+                    break
+                else:
+                    self.view.print("Invalid choice! Please enter 0, 1, or 2.\n")
 
-    def _finalize_tournament(self, tournament, ranked_players):
+    def finalize_tournament(self, tournament, ranked_players):
         """
         Finalize the tournament and display results.
 
